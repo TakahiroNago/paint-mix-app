@@ -118,13 +118,6 @@ function MultiColorMixerPage() {
         <MixerOptions
           colorNamesLabel={t.colorNames}
           language={language}
-          license={{
-            title: t.licenseTitle,
-            description: t.licenseDescription,
-            copyright: t.licenseCopyright,
-            terms: t.licenseTerms,
-            close: t.close,
-          }}
           modeActive={breakDown}
           modeLabel={multiColor.breakDown}
           onLanguageChange={changeLanguage}
@@ -264,6 +257,7 @@ function MultiColorMixerPage() {
 
       <footer className="paint-mix__footer">
         <a href="/contact">{t.contact}</a>
+        <a href="/privacy">{t.privacyPolicy}</a>
       </footer>
 
       {paletteTarget !== null && (

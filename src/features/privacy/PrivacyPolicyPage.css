@@ -1,0 +1,79 @@
+.privacy-page {
+  width: min(100% - 32px, 640px);
+  margin: 24px auto;
+  color: #6c757d;
+  font-family: 'Zen Maru Gothic', 'Noto Sans JP', sans-serif;
+}
+
+.privacy-page__header {
+  margin-bottom: 16px;
+  text-align: center;
+}
+
+.privacy-page__brand {
+  color: #6c757d;
+  font-size: 1.5rem;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.privacy-page__card {
+  border: 1px solid #dee2e6;
+  border-radius: 10px;
+  padding: 24px;
+}
+
+.privacy-page__card h1 {
+  margin: 0 0 16px;
+  color: #6c757d;
+  font-size: 1.4rem;
+}
+
+.privacy-page__card p {
+  line-height: 1.8;
+}
+
+.privacy-page__section {
+  border-top: 1px solid #dee2e6;
+  margin-top: 20px;
+  padding-top: 16px;
+}
+
+.privacy-page__section h2 {
+  margin: 0;
+  color: #6c757d;
+  font-size: 1rem;
+}
+
+.privacy-page__section p {
+  margin-bottom: 0;
+}
+
+.privacy-page__references a {
+  color: #0d6efd;
+}
+
+.privacy-page__operator {
+  margin-top: 24px;
+  font-weight: 700;
+}
+
+.privacy-page__back {
+  display: block;
+  border: 1px solid #adb5bd;
+  border-radius: 6px;
+  padding: 8px 12px;
+  color: #6c757d;
+  text-align: center;
+  text-decoration: none;
+}
+
+@media (max-width: 480px) {
+  .privacy-page {
+    margin-top: 12px;
+  }
+
+  .privacy-page__card {
+    padding: 18px;
+  }
+}

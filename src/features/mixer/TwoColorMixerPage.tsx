@@ -145,13 +145,6 @@ export function TwoColorMixerPage() {
         <MixerOptions
           colorNamesLabel={t.colorNames}
           language={language}
-          license={{
-            title: t.licenseTitle,
-            description: t.licenseDescription,
-            copyright: t.licenseCopyright,
-            terms: t.licenseTerms,
-            close: t.close,
-          }}
           modeActive={gradient}
           modeLabel={twoColor.gradient}
           onLanguageChange={changeLanguage}
@@ -254,6 +247,7 @@ export function TwoColorMixerPage() {
 
       <footer className="paint-mix__footer">
         <a href="/contact">{t.contact}</a>
+        <a href="/privacy">{t.privacyPolicy}</a>
       </footer>
 
       {paletteTarget !== null && (

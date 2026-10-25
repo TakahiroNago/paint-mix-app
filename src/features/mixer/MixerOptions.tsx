@@ -1,13 +1,5 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useState } from 'react'
 import type { Language } from './mixerUtils'
-
-interface LicenseCopy {
-  title: string
-  description: string
-  copyright: string
-  terms: string
-  close: string
-}
 
 interface MixerOptionsProps {
   language: Language
@@ -19,7 +11,6 @@ interface MixerOptionsProps {
   modeLabel: string
   modeActive: boolean
   onToggleMode: () => void
-  license: LicenseCopy
 }
 
 export function MixerOptions({
@@ -32,11 +23,8 @@ export function MixerOptions({
   modeLabel,
   modeActive,
   onToggleMode,
-  license,
 }: MixerOptionsProps) {
   const [showOptions, setShowOptions] = useState(false)
-  const [showLicense, setShowLicense] = useState(false)
-  const closeLicense = useCallback(() => setShowLicense(false), [])
 
   return (
     <>
@@ -84,84 +72,8 @@ export function MixerOptions({
               日本語
             </button>
           </div>
-          <button
-            className="paint-mix__option"
-            onClick={() => setShowLicense(true)}
-            type="button"
-          >
-            {license.title}
-          </button>
         </section>
       )}
-      {showLicense && (
-        <LicenseDialog license={license} onClose={closeLicense} />
-      )}
     </>
-  )
-}
-
-interface LicenseDialogProps {
-  license: LicenseCopy
-  onClose: () => void
-}
-
-function LicenseDialog({ license, onClose }: LicenseDialogProps) {
-  const closeButton = useRef<HTMLButtonElement>(null)
-
-  useEffect(() => {
-    closeButton.current?.focus()
-    function handleKeyDown(event: KeyboardEvent) {
-      if (event.key === 'Escape') {
-        onClose()
-      }
-    }
-    document.addEventListener('keydown', handleKeyDown)
-    return () => document.removeEventListener('keydown', handleKeyDown)
-  }, [onClose])
-
-  return (
-    <div
-      className="paint-mix__backdrop"
-      onClick={(event) => {
-        if (event.target === event.currentTarget) {
-          onClose()
-        }
-      }}
-    >
-      <section
-        aria-labelledby="mixbox-license-title"
-        aria-modal="true"
-        className="paint-mix__dialog paint-mix__license-dialog"
-        role="dialog"
-      >
-        <div className="paint-mix__dialog-header">
-          <h2 id="mixbox-license-title">{license.title}</h2>
-          <button
-            aria-label={license.close}
-            onClick={onClose}
-            ref={closeButton}
-            type="button"
-          >
-            ×
-          </button>
-        </div>
-        <p>{license.description}</p>
-        <a href="https://scrtwpns.com/mixbox/" rel="noopener noreferrer" target="_blank">
-          https://scrtwpns.com/mixbox/
-        </a>
-        <p>
-          <a
-            href="https://creativecommons.org/licenses/by-nc/4.0/"
-            rel="noopener noreferrer"
-            target="_blank"
-          >
-            CC BY-NC 4.0
-          </a>
-        </p>
-        <hr />
-        <p>{license.copyright}</p>
-        <p>{license.terms}</p>
-      </section>
-    </div>
   )
 }

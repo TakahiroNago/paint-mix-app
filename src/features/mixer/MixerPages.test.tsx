@@ -126,20 +126,21 @@ describe('TwoColorMixerPage', () => {
     expect(hueOrders).toEqual([...hueOrders].sort((first, second) => first - second))
   })
 
-  it('changes language and opens the license dialog', async () => {
+  it('changes language without showing a license option in the menu', async () => {
     const user = userEvent.setup()
     render(<TwoColorMixerPage />)
 
+    expect(screen.getByRole('link', { name: 'Privacy Policy' })).toHaveAttribute('href', '/privacy')
     await user.click(screen.getByRole('button', { name: 'Options' }))
+    expect(screen.queryByRole('button', { name: 'License' })).not.toBeInTheDocument()
     await user.click(screen.getByRole('button', { name: '日本語' }))
     expect(screen.getByRole('slider', { name: '混合比' })).toBeInTheDocument()
     expect(window.localStorage.getItem('lang')).toBe('ja')
-
-    await user.click(screen.getByRole('button', { name: 'ライセンス' }))
-    const dialog = screen.getByRole('dialog', { name: 'ライセンス' })
-    expect(within(dialog).getByText(/非営利目的のみ/)).toBeInTheDocument()
-    await user.keyboard('{Escape}')
-    await waitFor(() => expect(screen.queryByRole('dialog')).not.toBeInTheDocument())
+    expect(screen.queryByRole('button', { name: 'ライセンス' })).not.toBeInTheDocument()
+    expect(screen.getByRole('link', { name: 'プライバシーポリシー' })).toHaveAttribute(
+      'href',
+      '/privacy',
+    )
   })
 })
 
@@ -243,6 +244,23 @@ describe('app navigation', () => {
       'mailto:artfullstack@gmail.com',
     )
     expect(screen.getByText('Art Full Stack')).toBeInTheDocument()
+
+    window.history.pushState({}, '', '/')
+  })
+
+  it('renders the privacy policy for the /privacy path', () => {
+    window.localStorage.setItem('lang', 'ja')
+    window.history.pushState({}, '', '/privacy')
+    render(<App />)
+
+    expect(screen.getByRole('heading', { name: 'プライバシーポリシー' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'ブラウザーに保存する情報' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: '情報の第三者提供' })).toBeInTheDocument()
+    expect(screen.getByRole('heading', { name: 'Mixboxのライセンスと著作権表示' })).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: 'CC BY-NC 4.0ライセンス' })).toHaveAttribute(
+      'href',
+      'https://creativecommons.org/licenses/by-nc/4.0/',
+    )
 
     window.history.pushState({}, '', '/')
   })
