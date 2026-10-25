@@ -9,7 +9,9 @@ import {
 import { loadMixbox, type MixboxApi } from '../../domain/mixbox'
 import { calculateTwoColorMix } from '../../domain/mixing'
 import { ColorPaletteDialog, RatioControl } from './MixerControls'
+import { MixerOptions } from './MixerOptions'
 import { getColorName, getTextColor, type Language } from './mixerUtils'
+import { useMixerPreferences } from './useMixerPreferences'
 import './TwoColorMixerPage.css'
 
 type PaletteTarget = number
@@ -29,7 +31,10 @@ interface Messages {
   loading: string
   loadError: string
   retry: string
-  license: string
+  licenseTitle: string
+  licenseDescription: string
+  licenseCopyright: string
+  licenseTerms: string
 }
 
 const messages: Record<Language, Messages> = {
@@ -48,7 +53,10 @@ const messages: Record<Language, Messages> = {
     loading: 'Loading color-mixing engine…',
     loadError: 'The color-mixing engine could not be loaded. Check your connection and retry.',
     retry: 'Retry',
-    license: 'Mixbox is provided under the CC BY-NC 4.0 license for non-commercial use only.',
+    licenseTitle: 'License',
+    licenseDescription: 'This app uses the method provided on the Mixbox website to reproduce in RGB the colors created by mixing real paints.',
+    licenseCopyright: 'Copyright (c) 2022, Secret Weapons. All rights reserved.',
+    licenseTerms: 'Mixbox is provided under the CC BY-NC 4.0 license for non-commercial use only.',
   },
   ja: {
     title: 'PaintMix',
@@ -65,35 +73,15 @@ const messages: Record<Language, Messages> = {
     loading: '混色エンジンを読み込んでいます…',
     loadError: '混色エンジンを読み込めませんでした。接続を確認して再試行してください。',
     retry: '再試行',
-    license: 'MixboxはCC BY-NC 4.0ライセンスにより非営利目的のみで提供されています。',
+    licenseTitle: 'ライセンス',
+    licenseDescription: '本アプリはMixboxサイトが提供する、絵具を混ぜてできる色をRGBで再現する方法を使用しています。',
+    licenseCopyright: 'Copyright (c) 2022, Secret Weapons. All rights reserved.',
+    licenseTerms: 'MixboxはCC BY-NC 4.0ライセンスにより非営利目的のみで提供されています。',
   },
 }
 
-function getInitialLanguage(): Language {
-  try {
-    const savedLanguage = window.localStorage.getItem('lang')
-    if (savedLanguage === 'en' || savedLanguage === 'ja') {
-      return savedLanguage
-    }
-  } catch (error) {
-    console.warn('Could not read the saved language preference.', error)
-  }
-
-  return navigator.language.toLowerCase().startsWith('ja') ? 'ja' : 'en'
-}
-
-function getInitialNameVisibility(): boolean {
-  try {
-    return window.localStorage.getItem('nameDisp') !== 'false'
-  } catch (error) {
-    console.warn('Could not read the saved color-name preference.', error)
-    return true
-  }
-}
-
 export function TwoColorMixerPage() {
-  const [language, setLanguage] = useState<Language>(getInitialLanguage)
-  const [showNames, setShowNames] = useState(getInitialNameVisibility)
+  const { language, showNames, changeLanguage, toggleNames } = useMixerPreferences()
   const [colors, setColors] = useState<[PaintColor, PaintColor]>(DEFAULT_COLORS)
   const [colorRatio, setColorRatio] = useState(10)
   const [whiteRatio, setWhiteRatio] = useState(10)
@@ -102,7 +90,6 @@ export function TwoColorMixerPage() {
   const [loadError, setLoadError] = useState<string | null>(null)
   const [paletteTarget, setPaletteTarget] = useState<PaletteTarget | null>(null)
   const [showMixedColors, setShowMixedColors] = useState(false)
-  const [showOptions, setShowOptions] = useState(false)
   const t = messages[language]
 
   const mix = useMemo(
@@ -119,10 +106,6 @@ export function TwoColorMixerPage() {
         : null,
     [mixbox, colors, colorRatio, whiteRatio],
   )
-
-  useEffect(() => {
-    document.documentElement.lang = language
-  }, [language])
 
   useEffect(() => {
     let active = true
@@ -143,25 +126,6 @@ export function TwoColorMixerPage() {
       active = false
     }
   }, [])
-
-  function changeLanguage(nextLanguage: Language) {
-    setLanguage(nextLanguage)
-    try {
-      window.localStorage.setItem('lang', nextLanguage)
-    } catch (error) {
-      console.error('Could not save the language preference.', error)
-    }
-  }
-
-  function toggleNames() {
-    const nextVisibility = !showNames
-    setShowNames(nextVisibility)
-    try {
-      window.localStorage.setItem('nameDisp', String(nextVisibility))
-    } catch (error) {
-      console.error('Could not save the color-name preference.', error)
-    }
-  }
 
   function updateRatio(setter: (value: number) => void, value: number) {
     setter(Math.max(0, Math.min(20, value)))
@@ -200,46 +164,25 @@ export function TwoColorMixerPage() {
           <span className="paint-mix__title-m">M</span>ix
           <span aria-hidden="true"> 🎨</span>
         </h1>
-        <button
-          aria-expanded={showOptions}
-          aria-label={t.options}
-          className="paint-mix__menu-button"
-          onClick={() => setShowOptions((open) => !open)}
-          type="button"
-        >
-          ☰
-        </button>
+        <MixerOptions
+          colorNamesLabel={t.colorNames}
+          language={language}
+          license={{
+            title: t.licenseTitle,
+            description: t.licenseDescription,
+            copyright: t.licenseCopyright,
+            terms: t.licenseTerms,
+            close: t.close,
+          }}
+          modeActive={gradient}
+          modeLabel={t.gradient}
+          onLanguageChange={changeLanguage}
+          onToggleMode={() => setGradient((enabled) => !enabled)}
+          onToggleNames={toggleNames}
+          optionsLabel={t.options}
+          showNames={showNames}
+        />
       </header>
-
-      {showOptions && (
-        <section aria-label={t.options} className="paint-mix__options">
-          <h2>{t.options}</h2>
-          <button
-            aria-pressed={gradient}
-            className={gradient ? 'paint-mix__option is-active' : 'paint-mix__option'}
-            onClick={() => setGradient((enabled) => !enabled)}
-            type="button"
-          >
-            {t.gradient}
-          </button>
-          <button
-            aria-pressed={showNames}
-            className={showNames ? 'paint-mix__option is-active' : 'paint-mix__option'}
-            onClick={toggleNames}
-            type="button"
-          >
-            {t.colorNames}
-          </button>
-          <div className="paint-mix__languages">
-            <button aria-pressed={language === 'en'} onClick={() => changeLanguage('en')} type="button">
-              English
-            </button>
-            <button aria-pressed={language === 'ja'} onClick={() => changeLanguage('ja')} type="button">
-              日本語
-            </button>
-          </div>
-        </section>
-      )}
 
       <section aria-label={t.title} className="paint-mix__panel">
         <div className="paint-mix__color-row">
@@ -313,13 +256,6 @@ export function TwoColorMixerPage() {
           </div>
         )}
       </section>
-
-      <footer className="paint-mix__footer">
-        <p>{t.license}</p>
-        <a href="https://scrtwpns.com/mixbox/" rel="noreferrer" target="_blank">
-          Mixbox
-        </a>
-      </footer>
 
       {paletteTarget !== null && (
         <ColorPaletteDialog
