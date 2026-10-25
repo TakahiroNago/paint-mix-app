@@ -1,6 +1,7 @@
 import type { PaintColor } from '../../domain/colors'
+import type { Language } from '../../i18n/messages'
 
-export type Language = 'en' | 'ja'
+export type { Language } from '../../i18n/messages'
 
 export function getColorName(color: PaintColor, language: Language): string {
   return language === 'ja' ? color.nameJa : color.name

@@ -11,76 +11,13 @@ import { calculateTwoColorMix } from '../../domain/mixing'
 import { ColorPaletteDialog, RatioControl } from './MixerControls'
 import { MixerOptions } from './MixerOptions'
 import { GuideHint } from './GuideHint'
-import { getColorName, getTextColor, type Language } from './mixerUtils'
+import { getColorName, getTextColor } from './mixerUtils'
 import { useMixerGuide } from './useMixerGuide'
 import { useMixerPreferences } from './useMixerPreferences'
+import { messages } from '../../i18n/messages'
 import './TwoColorMixerPage.css'
 
 type PaletteTarget = number
-
-interface Messages {
-  title: string
-  options: string
-  color: (index: number) => string
-  chooseColor: (index: number) => string
-  mixRatio: string
-  mixWithWhite: string
-  mixedColor: string
-  gradient: string
-  colorNames: string
-  palette: (index: number) => string
-  close: string
-  loading: string
-  loadError: string
-  retry: string
-  licenseTitle: string
-  licenseDescription: string
-  licenseCopyright: string
-  licenseTerms: string
-}
-
-const messages: Record<Language, Messages> = {
-  en: {
-    title: 'PaintMix',
-    options: 'Options',
-    color: (index: number) => `Color ${index + 1}`,
-    chooseColor: (index: number) => `Select Color ${index + 1}`,
-    mixRatio: 'Mix Ratio',
-    mixWithWhite: 'Mix with White',
-    mixedColor: 'Select from Mixed Colors',
-    gradient: 'Gradient',
-    colorNames: 'Color Names',
-    palette: (index: number) => `Palette ${index + 1}`,
-    close: 'Close',
-    loading: 'Loading color-mixing engine…',
-    loadError: 'The color-mixing engine could not be loaded. Check your connection and retry.',
-    retry: 'Retry',
-    licenseTitle: 'License',
-    licenseDescription: 'This app uses the method provided on the Mixbox website to reproduce in RGB the colors created by mixing real paints.',
-    licenseCopyright: 'Copyright (c) 2022, Secret Weapons. All rights reserved.',
-    licenseTerms: 'Mixbox is provided under the CC BY-NC 4.0 license for non-commercial use only.',
-  },
-  ja: {
-    title: 'PaintMix',
-    options: 'オプション',
-    color: (index: number) => `色${index + 1}`,
-    chooseColor: (index: number) => `色${index + 1}を選択`,
-    mixRatio: '混合比',
-    mixWithWhite: '白を混ぜる',
-    mixedColor: '混色から選択',
-    gradient: 'グラデーション',
-    colorNames: '色名',
-    palette: (index: number) => `パレット${index + 1}`,
-    close: '閉じる',
-    loading: '混色エンジンを読み込んでいます…',
-    loadError: '混色エンジンを読み込めませんでした。接続を確認して再試行してください。',
-    retry: '再試行',
-    licenseTitle: 'ライセンス',
-    licenseDescription: '本アプリはMixboxサイトが提供する、絵具を混ぜてできる色をRGBで再現する方法を使用しています。',
-    licenseCopyright: 'Copyright (c) 2022, Secret Weapons. All rights reserved.',
-    licenseTerms: 'MixboxはCC BY-NC 4.0ライセンスにより非営利目的のみで提供されています。',
-  },
-}
 
 export function TwoColorMixerPage() {
   const { language, showNames, changeLanguage, toggleNames } = useMixerPreferences()
@@ -100,6 +37,7 @@ export function TwoColorMixerPage() {
     dismissCurrentStep,
   } = useMixerGuide({ hasResultStep: true })
   const t = messages[language]
+  const twoColor = t.twoColor
 
   const mix = useMemo(
     () =>
@@ -184,7 +122,7 @@ export function TwoColorMixerPage() {
             close: t.close,
           }}
           modeActive={gradient}
-          modeLabel={t.gradient}
+          modeLabel={twoColor.gradient}
           onLanguageChange={changeLanguage}
           onToggleMode={() => setGradient((enabled) => !enabled)}
           onToggleNames={toggleNames}
@@ -218,7 +156,7 @@ export function TwoColorMixerPage() {
         )}
 
         <RatioControl
-          label={t.mixRatio}
+          label={twoColor.mixRatio}
           onChange={(value) => {
             markRatiosTouched()
             updateRatio(setColorRatio, value)
@@ -230,7 +168,7 @@ export function TwoColorMixerPage() {
         )}
 
         <button
-          aria-label={t.mixedColor}
+          aria-label={twoColor.mixedColor}
           className="paint-mix__result"
           disabled={!mix}
           onClick={() => {
@@ -247,19 +185,19 @@ export function TwoColorMixerPage() {
         )}
 
         <RatioControl
-          label={t.mixWithWhite}
+          label={twoColor.mixWithWhite}
           onChange={(value) => updateRatio(setWhiteRatio, value)}
           value={whiteRatio}
         />
 
         <div
-          aria-label={t.mixWithWhite}
+          aria-label={twoColor.mixWithWhite}
           className="paint-mix__result paint-mix__result--white"
           style={{ background: mix ? (gradient ? mix.whiteGradient : mix.withWhite) : '#ddd' }}
         />
 
         <a className="paint-mix__more-link" href="/more">
-          {language === 'ja' ? 'もっと色を混ぜる' : 'Mix More Color'}
+          {twoColor.moreColors}
         </a>
 
         {!mix && !loadError && <p className="paint-mix__status">{t.loading}</p>}
@@ -305,14 +243,14 @@ export function TwoColorMixerPage() {
       {showMixedColors && (
         <div className="paint-mix__backdrop" onClick={() => setShowMixedColors(false)}>
           <section
-            aria-label={t.mixedColor}
+            aria-label={twoColor.mixedColor}
             aria-modal="true"
             className="paint-mix__dialog paint-mix__dialog--mixed"
             onClick={(event) => event.stopPropagation()}
             role="dialog"
           >
             <div className="paint-mix__dialog-header">
-              <h2>{t.mixedColor}</h2>
+              <h2>{twoColor.mixedColor}</h2>
               <button aria-label={t.close} onClick={() => setShowMixedColors(false)} type="button">
                 ×
               </button>

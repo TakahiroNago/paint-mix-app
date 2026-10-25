@@ -15,71 +15,8 @@ import { GuideHint } from './GuideHint'
 import { getColorName, getTextColor, type Language } from './mixerUtils'
 import { useMixerPreferences } from './useMixerPreferences'
 import { useMixerGuide } from './useMixerGuide'
+import { messages } from '../../i18n/messages'
 import './MultiColorMixerPage.css'
-
-interface Messages {
-  title: string
-  options: string
-  color: (index: number) => string
-  chooseColor: (index: number) => string
-  ratio: (index: number) => string
-  fifthRatio: string
-  breakDown: string
-  colorNames: string
-  palette: (index: number) => string
-  close: string
-  loading: string
-  loadError: string
-  retry: string
-  back: string
-  licenseTitle: string
-  licenseDescription: string
-  licenseCopyright: string
-  licenseTerms: string
-}
-
-const messages: Record<Language, Messages> = {
-  en: {
-    title: 'PaintMix',
-    options: 'Options',
-    color: (index: number) => `Color ${index + 1}`,
-    chooseColor: (index: number) => `Select Color ${index + 1}`,
-    ratio: (index: number) => `Color ${index + 1} ratio`,
-    fifthRatio: 'Fifth color ratio',
-    breakDown: 'Break Down',
-    colorNames: 'Color Names',
-    palette: (index: number) => `Palette ${index + 1}`,
-    close: 'Close',
-    loading: 'Loading color-mixing engine…',
-    loadError: 'The color-mixing engine could not be loaded. Check your connection and retry.',
-    retry: 'Retry',
-    back: 'Back to two-color mixer',
-    licenseTitle: 'License',
-    licenseDescription: 'This app uses the method provided on the Mixbox website to reproduce in RGB the colors created by mixing real paints.',
-    licenseCopyright: 'Copyright (c) 2022, Secret Weapons. All rights reserved.',
-    licenseTerms: 'Mixbox is provided under the CC BY-NC 4.0 license for non-commercial use only.',
-  },
-  ja: {
-    title: 'PaintMix',
-    options: 'オプション',
-    color: (index: number) => `色${index + 1}`,
-    chooseColor: (index: number) => `色${index + 1}を選択`,
-    ratio: (index: number) => `色${index + 1}の混合比`,
-    fifthRatio: '5色目の混合比',
-    breakDown: '分解表示',
-    colorNames: '色名',
-    palette: (index: number) => `パレット${index + 1}`,
-    close: '閉じる',
-    loading: '混色エンジンを読み込んでいます…',
-    loadError: '混色エンジンを読み込めませんでした。接続を確認して再試行してください。',
-    retry: '再試行',
-    back: '2色混色に戻る',
-    licenseTitle: 'ライセンス',
-    licenseDescription: '本アプリはMixboxサイトが提供する、絵具を混ぜてできる色をRGBで再現する方法を使用しています。',
-    licenseCopyright: 'Copyright (c) 2022, Secret Weapons. All rights reserved.',
-    licenseTerms: 'MixboxはCC BY-NC 4.0ライセンスにより非営利目的のみで提供されています。',
-  },
-}
 
 function MultiColorMixerPage() {
   const { language, showNames, changeLanguage, toggleNames } = useMixerPreferences()
@@ -94,6 +31,7 @@ function MultiColorMixerPage() {
   const { visibleStep, markColorsTouched, markRatiosTouched, dismissCurrentStep } =
     useMixerGuide({ hasResultStep: false })
   const t = messages[language]
+  const multiColor = t.multiColor
 
   const mix = useMemo(
     () =>
@@ -141,7 +79,7 @@ function MultiColorMixerPage() {
   return (
     <main className="paint-mix paint-mix--multi">
       <header className="paint-mix__header">
-        <a aria-label={t.back} className="paint-mix__back-link" href="/">
+        <a aria-label={multiColor.back} className="paint-mix__back-link" href="/">
           ←
         </a>
         <h1 className="paint-mix__title">
@@ -160,7 +98,7 @@ function MultiColorMixerPage() {
             close: t.close,
           }}
           modeActive={breakDown}
-          modeLabel={t.breakDown}
+          modeLabel={multiColor.breakDown}
           onLanguageChange={changeLanguage}
           onToggleMode={() => setBreakDown((enabled) => !enabled)}
           onToggleNames={toggleNames}
@@ -187,7 +125,7 @@ function MultiColorMixerPage() {
                 {showNames ? getColorName(color, language) : ''}
               </button>
               <RatioControl
-                label={t.ratio(index)}
+                label={multiColor.ratio(index)}
                 onChange={(value) => {
                   markRatiosTouched()
                   updateRatio(index, value)
@@ -206,7 +144,7 @@ function MultiColorMixerPage() {
 
         <div aria-label={t.title} className="multi-mix__equation">
           {breakDown ? (
-            <BreakdownDisplay colors={colorSlots} ratios={ratios} />
+            <BreakdownDisplay colors={colorSlots} language={language} ratios={ratios} />
           ) : (
             <>
               {colorSlots.map((color, index) => (
@@ -225,7 +163,7 @@ function MultiColorMixerPage() {
               ))}
               {mix && mix.baseTotal > 0 && <span aria-hidden="true">=</span>}
               <span
-                aria-label={language === 'ja' ? '4色の混色結果' : 'Four-color mix result'}
+                aria-label={multiColor.fourColorResult}
                 className="multi-mix__base-result"
                 style={{ backgroundColor: mix?.base ?? '#ddd' }}
               />
@@ -250,7 +188,7 @@ function MultiColorMixerPage() {
               {showNames ? getColorName(colors[4], language) : ''}
             </button>
             <RatioControl
-              label={t.fifthRatio}
+              label={multiColor.fifthRatio}
               onChange={(value) => {
                 markRatiosTouched()
                 updateRatio(4, value)
@@ -260,7 +198,7 @@ function MultiColorMixerPage() {
           </div>
           <span aria-hidden="true" className="multi-mix__operator">=</span>
           <div
-            aria-label={language === 'ja' ? '5色の最終結果' : 'Final five-color result'}
+            aria-label={multiColor.finalResult}
             className="multi-mix__final-result"
             style={{ backgroundColor: mix?.withFifthColor ?? '#ddd' }}
           />
@@ -288,7 +226,7 @@ function MultiColorMixerPage() {
         )}
 
         <a className="paint-mix__more-link" href="/">
-          {t.back}
+          {multiColor.back}
         </a>
       </section>
 
@@ -315,10 +253,11 @@ function MultiColorMixerPage() {
 
 interface BreakdownDisplayProps {
   colors: PaintColor[]
+  language: Language
   ratios: MultiColorRatios
 }
 
-function BreakdownDisplay({ colors, ratios }: BreakdownDisplayProps) {
+function BreakdownDisplay({ colors, language, ratios }: BreakdownDisplayProps) {
   const units = colors.flatMap((color, index) =>
     Array.from({ length: ratios[index] }, (_, unitIndex) => ({
       id: `${color.id}-${unitIndex}`,
@@ -327,7 +266,10 @@ function BreakdownDisplay({ colors, ratios }: BreakdownDisplayProps) {
   )
 
   return (
-    <div aria-label="Paint ratio breakdown" className="multi-mix__breakdown">
+    <div
+      aria-label={messages[language].multiColor.breakdown}
+      className="multi-mix__breakdown"
+    >
       {units.map((unit) => (
         <span className="multi-mix__breakdown-unit" key={unit.id} style={{ backgroundColor: unit.hex }} />
       ))}

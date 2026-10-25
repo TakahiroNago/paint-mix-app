@@ -1,6 +1,7 @@
 import { useState } from 'react'
 import type { PaintColor } from '../../domain/colors'
 import { getColorName, type Language } from './mixerUtils'
+import { messages } from '../../i18n/messages'
 
 interface RatioControlProps {
   label: string
@@ -52,7 +53,8 @@ export function ColorPaletteDialog({
   selectedColor,
 }: ColorPaletteDialogProps) {
   const [customHex, setCustomHex] = useState('#eeeeee')
-  const customName = language === 'ja' ? 'カスタムカラー' : 'Custom Color'
+  const t = messages[language]
+  const customName = t.customColor
 
   return (
     <div className="paint-mix__backdrop" onClick={onClose}>
@@ -65,7 +67,7 @@ export function ColorPaletteDialog({
       >
         <div className="paint-mix__dialog-header">
           <h2>{paletteName}</h2>
-          <button aria-label={language === 'ja' ? '閉じる' : 'Close'} onClick={onClose} type="button">
+          <button aria-label={t.close} onClick={onClose} type="button">
             ×
           </button>
         </div>
