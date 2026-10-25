@@ -252,6 +252,10 @@ export function TwoColorMixerPage() {
         )}
       </section>
 
+      <footer className="paint-mix__footer">
+        <a href="/contact">{t.contact}</a>
+      </footer>
+
       {paletteTarget !== null && (
         <ColorPaletteDialog
           colors={sortColorsByHue(PAINT_COLORS)}

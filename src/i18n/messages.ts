@@ -20,6 +20,12 @@ interface SharedMessages {
   guideColors: string
   guideRatio: string
   guideResult: string
+  contact: string
+  contactTitle: string
+  contactDescription: string
+  email: string
+  operator: string
+  backToMixer: string
 }
 
 interface TwoColorMessages {
@@ -68,6 +74,13 @@ export const messages: Record<Language, AppMessages> = {
     guideColors: 'Choose a paint color to get started.',
     guideRatio: 'Adjust the mix ratio to change the result.',
     guideResult: 'Tap the mixed color to choose a premixed pair.',
+    contact: 'Contact',
+    contactTitle: 'Contact Paint Mix',
+    contactDescription:
+      'For questions, bug reports, feedback, or requests about Paint Mix, please contact us at the address below.',
+    email: 'Email',
+    operator: 'Operator',
+    backToMixer: 'Back to Paint Mix',
     twoColor: {
       mixRatio: 'Mix Ratio',
       mixWithWhite: 'Mix with White',
@@ -107,6 +120,13 @@ export const messages: Record<Language, AppMessages> = {
     guideColors: '色を選んで混色を始めましょう。',
     guideRatio: '混合比を調整して色の変化を試しましょう。',
     guideResult: '混色結果をタップすると、混色候補から選べます。',
+    contact: 'お問い合わせ',
+    contactTitle: 'お問い合わせについて',
+    contactDescription:
+      'Paint Mixに関するご質問、不具合の報告、ご意見・ご要望などがございましたら、以下の連絡先までご連絡ください。',
+    email: 'Email',
+    operator: '運営者',
+    backToMixer: 'Paint Mixに戻る',
     twoColor: {
       mixRatio: '混合比',
       mixWithWhite: '白を混ぜる',

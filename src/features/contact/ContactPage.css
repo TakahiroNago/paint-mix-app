@@ -1,0 +1,75 @@
+.contact-page {
+  width: min(100% - 32px, 560px);
+  margin: 24px auto;
+  color: #6c757d;
+  font-family: 'Zen Maru Gothic', 'Noto Sans JP', sans-serif;
+}
+
+.contact-page__header {
+  margin-bottom: 16px;
+  text-align: center;
+}
+
+.contact-page__brand {
+  color: #6c757d;
+  font-size: 1.5rem;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.contact-page__card {
+  border: 1px solid #dee2e6;
+  border-radius: 10px;
+  padding: 24px;
+}
+
+.contact-page__card h1 {
+  margin: 0 0 16px;
+  color: #6c757d;
+  font-size: 1.4rem;
+}
+
+.contact-page__card p {
+  line-height: 1.8;
+}
+
+.contact-page__details {
+  margin: 24px 0;
+}
+
+.contact-page__details div {
+  border-top: 1px solid #dee2e6;
+  padding: 14px 0;
+}
+
+.contact-page__details dt {
+  font-weight: 700;
+}
+
+.contact-page__details dd {
+  margin: 6px 0 0;
+}
+
+.contact-page__details a {
+  color: #0d6efd;
+}
+
+.contact-page__back {
+  display: block;
+  border: 1px solid #adb5bd;
+  border-radius: 6px;
+  padding: 8px 12px;
+  color: #6c757d;
+  text-align: center;
+  text-decoration: none;
+}
+
+@media (max-width: 480px) {
+  .contact-page {
+    margin-top: 12px;
+  }
+
+  .contact-page__card {
+    padding: 18px;
+  }
+}

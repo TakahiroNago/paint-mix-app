@@ -232,6 +232,21 @@ describe('MultiColorMixerPage', () => {
 })
 
 describe('app navigation', () => {
+  it('renders the contact page for the /contact path', () => {
+    window.localStorage.setItem('lang', 'ja')
+    window.history.pushState({}, '', '/contact')
+    render(<App />)
+
+    expect(screen.getByRole('heading', { name: 'お問い合わせについて' })).toBeInTheDocument()
+    expect(screen.getByRole('link', { name: 'artfullstack@gmail.com' })).toHaveAttribute(
+      'href',
+      'mailto:artfullstack@gmail.com',
+    )
+    expect(screen.getByText('Art Full Stack')).toBeInTheDocument()
+
+    window.history.pushState({}, '', '/')
+  })
+
   it('renders the multi-color page for the /more path', async () => {
     window.history.pushState({}, '', '/more')
     render(<App />)
