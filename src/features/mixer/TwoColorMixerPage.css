@@ -174,6 +174,59 @@
   cursor: default !important;
 }
 
+.paint-mix__more-link {
+  display: block;
+  width: 100%;
+  border: 1px solid #adb5bd;
+  border-radius: 6px;
+  margin-top: 16px;
+  padding: 7px 10px;
+  color: #6c757d;
+  text-align: center;
+  text-decoration: none;
+  font-size: 0.85rem;
+}
+
+.paint-mix__guide {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  border: 1px solid #f0c36d;
+  border-radius: 7px;
+  background: #fff8e6;
+  margin-top: 8px;
+  padding: 7px 10px;
+  color: #624b16;
+  font-size: 0.82rem;
+  line-height: 1.4;
+  animation: guide-appear 180ms ease-out;
+}
+
+.paint-mix__guide-icon {
+  flex: 0 0 auto;
+  font-size: 1.15rem;
+}
+
+.paint-mix__guide button {
+  flex: 0 0 auto;
+  border: 0;
+  background: transparent;
+  margin-left: auto;
+  font-size: 1.1rem;
+}
+
+@keyframes guide-appear {
+  from {
+    opacity: 0;
+    transform: translateY(-4px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 .paint-mix__status,
 .paint-mix__error {
   margin: 12px 0 0;

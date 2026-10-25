@@ -10,7 +10,9 @@ import { loadMixbox, type MixboxApi } from '../../domain/mixbox'
 import { calculateTwoColorMix } from '../../domain/mixing'
 import { ColorPaletteDialog, RatioControl } from './MixerControls'
 import { MixerOptions } from './MixerOptions'
+import { GuideHint } from './GuideHint'
 import { getColorName, getTextColor, type Language } from './mixerUtils'
+import { useMixerGuide } from './useMixerGuide'
 import { useMixerPreferences } from './useMixerPreferences'
 import './TwoColorMixerPage.css'
 
@@ -90,6 +92,13 @@ export function TwoColorMixerPage() {
   const [loadError, setLoadError] = useState<string | null>(null)
   const [paletteTarget, setPaletteTarget] = useState<PaletteTarget | null>(null)
   const [showMixedColors, setShowMixedColors] = useState(false)
+  const {
+    visibleStep,
+    markColorsTouched,
+    markRatiosTouched,
+    markResultTouched,
+    dismissCurrentStep,
+  } = useMixerGuide({ hasResultStep: true })
   const t = messages[language]
 
   const mix = useMemo(
@@ -192,7 +201,10 @@ export function TwoColorMixerPage() {
               <button
                 aria-label={`${t.chooseColor(index)}: ${getColorName(color, language)}`}
                 className="paint-mix__color-swatch"
-                onClick={() => setPaletteTarget(index as PaletteTarget)}
+                onClick={() => {
+                  markColorsTouched()
+                  setPaletteTarget(index as PaletteTarget)
+                }}
                 style={{ backgroundColor: color.hex, color: getTextColor(color.hex) }}
                 type="button"
               >
@@ -201,23 +213,38 @@ export function TwoColorMixerPage() {
             </div>
           ))}
         </div>
+        {visibleStep === 'colors' && (
+          <GuideHint language={language} onDismiss={dismissCurrentStep} step={visibleStep} />
+        )}
 
         <RatioControl
           label={t.mixRatio}
-          onChange={(value) => updateRatio(setColorRatio, value)}
+          onChange={(value) => {
+            markRatiosTouched()
+            updateRatio(setColorRatio, value)
+          }}
           value={colorRatio}
         />
+        {visibleStep === 'ratio' && (
+          <GuideHint language={language} onDismiss={dismissCurrentStep} step={visibleStep} />
+        )}
 
         <button
           aria-label={t.mixedColor}
           className="paint-mix__result"
           disabled={!mix}
-          onClick={() => setShowMixedColors(true)}
+          onClick={() => {
+            markResultTouched()
+            setShowMixedColors(true)
+          }}
           style={{ background: mix ? (gradient ? mix.baseGradient : mix.base) : '#ddd' }}
           type="button"
         >
           {mix && `# ${getColorName(colors[0], language)} + ${getColorName(colors[1], language)}`}
         </button>
+        {visibleStep === 'result' && (
+          <GuideHint language={language} onDismiss={dismissCurrentStep} step={visibleStep} />
+        )}
 
         <RatioControl
           label={t.mixWithWhite}

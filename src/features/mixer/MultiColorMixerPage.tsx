@@ -11,8 +11,10 @@ import {
 } from '../../domain/mixing'
 import { ColorPaletteDialog, RatioControl } from './MixerControls'
 import { MixerOptions } from './MixerOptions'
+import { GuideHint } from './GuideHint'
 import { getColorName, getTextColor, type Language } from './mixerUtils'
 import { useMixerPreferences } from './useMixerPreferences'
+import { useMixerGuide } from './useMixerGuide'
 import './MultiColorMixerPage.css'
 
 interface Messages {
@@ -89,6 +91,8 @@ function MultiColorMixerPage() {
   const [paletteTarget, setPaletteTarget] = useState<number | null>(null)
   const [mixbox, setMixbox] = useState<MixboxApi | null>(null)
   const [loadError, setLoadError] = useState<string | null>(null)
+  const { visibleStep, markColorsTouched, markRatiosTouched, dismissCurrentStep } =
+    useMixerGuide({ hasResultStep: false })
   const t = messages[language]
 
   const mix = useMemo(
@@ -173,7 +177,10 @@ function MultiColorMixerPage() {
               <button
                 aria-label={`${t.chooseColor(index)}: ${getColorName(color, language)}`}
                 className="paint-mix__color-swatch"
-                onClick={() => setPaletteTarget(index)}
+                onClick={() => {
+                  markColorsTouched()
+                  setPaletteTarget(index)
+                }}
                 style={{ backgroundColor: color.hex, color: getTextColor(color.hex) }}
                 type="button"
               >
@@ -181,12 +188,21 @@ function MultiColorMixerPage() {
               </button>
               <RatioControl
                 label={t.ratio(index)}
-                onChange={(value) => updateRatio(index, value)}
+                onChange={(value) => {
+                  markRatiosTouched()
+                  updateRatio(index, value)
+                }}
                 value={ratios[index]}
               />
             </div>
           ))}
         </div>
+        {visibleStep === 'colors' && (
+          <GuideHint language={language} onDismiss={dismissCurrentStep} step={visibleStep} />
+        )}
+        {visibleStep === 'ratio' && (
+          <GuideHint language={language} onDismiss={dismissCurrentStep} step={visibleStep} />
+        )}
 
         <div aria-label={t.title} className="multi-mix__equation">
           {breakDown ? (
@@ -224,7 +240,10 @@ function MultiColorMixerPage() {
             <button
               aria-label={`${t.chooseColor(4)}: ${getColorName(colors[4], language)}`}
               className="paint-mix__color-swatch"
-              onClick={() => setPaletteTarget(4)}
+              onClick={() => {
+                markColorsTouched()
+                setPaletteTarget(4)
+              }}
               style={{ backgroundColor: colors[4].hex, color: getTextColor(colors[4].hex) }}
               type="button"
             >
@@ -232,7 +251,10 @@ function MultiColorMixerPage() {
             </button>
             <RatioControl
               label={t.fifthRatio}
-              onChange={(value) => updateRatio(4, value)}
+              onChange={(value) => {
+                markRatiosTouched()
+                updateRatio(4, value)
+              }}
               value={ratios[4]}
             />
           </div>
