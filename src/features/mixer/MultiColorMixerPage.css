@@ -20,6 +20,12 @@
   min-width: 0;
 }
 
+.multi-mix__color-slot .paint-mix__color-swatch,
+.multi-mix__fifth-color .paint-mix__color-swatch {
+  width: 100%;
+  min-width: 0;
+}
+
 .multi-mix__color-slot .paint-mix__ratio {
   margin-top: 8px;
 }
@@ -53,7 +59,7 @@
   display: contents;
 }
 
-.multi-mix__equation-part > span:first-child {
+.multi-mix__equation-part > .multi-mix__source-dot {
   flex: 0 0 auto;
 }
 

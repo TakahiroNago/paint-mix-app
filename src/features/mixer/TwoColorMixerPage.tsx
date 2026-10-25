@@ -11,7 +11,7 @@ import { calculateTwoColorMix } from '../../domain/mixing'
 import { ColorPaletteDialog, RatioControl } from './MixerControls'
 import { MixerOptions } from './MixerOptions'
 import { GuideHint } from './GuideHint'
-import { getColorName, getTextColor } from './mixerUtils'
+import { getHueOrderFromYellow, getColorName, getTextColor, sortColorsByHue } from './mixerUtils'
 import { useMixerGuide } from './useMixerGuide'
 import { useMixerPreferences } from './useMixerPreferences'
 import { messages } from '../../i18n/messages'
@@ -19,11 +19,27 @@ import './TwoColorMixerPage.css'
 
 type PaletteTarget = number
 
+const CUSTOM_COLOR_STORAGE_KEY = 'twoColorCustomColor'
+
+function readCustomColorHex(): string {
+  try {
+    const savedColor = window.localStorage.getItem(CUSTOM_COLOR_STORAGE_KEY)
+    if (savedColor && /^#[\da-f]{6}$/i.test(savedColor)) {
+      return savedColor
+    }
+  } catch (error) {
+    console.warn('Could not read the saved custom color.', error)
+  }
+
+  return '#eeeeee'
+}
+
 export function TwoColorMixerPage() {
   const { language, showNames, changeLanguage, toggleNames } = useMixerPreferences()
   const [colors, setColors] = useState<[PaintColor, PaintColor]>(DEFAULT_COLORS)
   const [colorRatio, setColorRatio] = useState(10)
   const [whiteRatio, setWhiteRatio] = useState(10)
+  const [customColorHex, setCustomColorHex] = useState(readCustomColorHex)
   const [gradient, setGradient] = useState(false)
   const [mixbox, setMixbox] = useState<MixboxApi | null>(null)
   const [loadError, setLoadError] = useState<string | null>(null)
@@ -78,6 +94,15 @@ export function TwoColorMixerPage() {
     setter(Math.max(0, Math.min(20, value)))
   }
 
+  function updateCustomColorHex(hex: string) {
+    setCustomColorHex(hex)
+    try {
+      window.localStorage.setItem(CUSTOM_COLOR_STORAGE_KEY, hex)
+    } catch (error) {
+      console.error('Could not save the custom color.', error)
+    }
+  }
+
   function chooseMixedColors(first: PaintColor, second: PaintColor) {
     setColors([first, second])
     setColorRatio(10)
@@ -98,9 +123,15 @@ export function TwoColorMixerPage() {
       }
     }
     for (const pigment of MIXABLE_PIGMENTS) {
-      pairs.push({ first: pigment, second: TITANIUM_WHITE, color: mixbox.lerp(pigment.hex, TITANIUM_WHITE.hex, 0.5) })
+      pairs.push({
+        first: pigment,
+        second: TITANIUM_WHITE,
+        color: mixbox.lerp(pigment.hex, TITANIUM_WHITE.hex, 0.5),
+      })
     }
-    return pairs
+    return pairs.sort((firstPair, secondPair) => {
+      return getHueOrderFromYellow(firstPair.color) - getHueOrderFromYellow(secondPair.color)
+    })
   }, [mixbox])
 
   return (
@@ -178,7 +209,6 @@ export function TwoColorMixerPage() {
           style={{ background: mix ? (gradient ? mix.baseGradient : mix.base) : '#ddd' }}
           type="button"
         >
-          {mix && `# ${getColorName(colors[0], language)} + ${getColorName(colors[1], language)}`}
         </button>
         {visibleStep === 'result' && (
           <GuideHint language={language} onDismiss={dismissCurrentStep} step={visibleStep} />
@@ -224,7 +254,7 @@ export function TwoColorMixerPage() {
 
       {paletteTarget !== null && (
         <ColorPaletteDialog
-          colors={PAINT_COLORS}
+          colors={sortColorsByHue(PAINT_COLORS)}
           language={language}
           onClose={() => setPaletteTarget(null)}
           onSelect={(color) => {
@@ -237,6 +267,10 @@ export function TwoColorMixerPage() {
           }}
           paletteName={t.palette(paletteTarget)}
           selectedColor={colors[paletteTarget]}
+          customColorHex={customColorHex}
+          onCustomColorHexChange={updateCustomColorHex}
+          previewCustomColor
+          showCustomColorLabel={false}
         />
       )}
 

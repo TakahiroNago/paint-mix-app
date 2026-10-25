@@ -12,11 +12,26 @@ import {
 import { ColorPaletteDialog, RatioControl } from './MixerControls'
 import { MixerOptions } from './MixerOptions'
 import { GuideHint } from './GuideHint'
-import { getColorName, getTextColor, type Language } from './mixerUtils'
+import { getColorName, getTextColor, sortColorsByHue, type Language } from './mixerUtils'
 import { useMixerPreferences } from './useMixerPreferences'
 import { useMixerGuide } from './useMixerGuide'
 import { messages } from '../../i18n/messages'
 import './MultiColorMixerPage.css'
+
+const CUSTOM_COLOR_STORAGE_KEY = 'twoColorCustomColor'
+
+function readCustomColorHex(): string {
+  try {
+    const savedColor = window.localStorage.getItem(CUSTOM_COLOR_STORAGE_KEY)
+    if (savedColor && /^#[\da-f]{6}$/i.test(savedColor)) {
+      return savedColor
+    }
+  } catch (error) {
+    console.warn('Could not read the saved custom color.', error)
+  }
+
+  return '#eeeeee'
+}
 
 function MultiColorMixerPage() {
   const { language, showNames, changeLanguage, toggleNames } = useMixerPreferences()
@@ -24,6 +39,7 @@ function MultiColorMixerPage() {
     MULTI_COLOR_DEFAULTS,
   )
   const [ratios, setRatios] = useState<MultiColorRatios>([10, 10, 10, 10, 10])
+  const [customColorHex, setCustomColorHex] = useState(readCustomColorHex)
   const [breakDown, setBreakDown] = useState(false)
   const [paletteTarget, setPaletteTarget] = useState<number | null>(null)
   const [mixbox, setMixbox] = useState<MixboxApi | null>(null)
@@ -74,7 +90,19 @@ function MultiColorMixerPage() {
     })
   }
 
+  function updateCustomColorHex(hex: string) {
+    setCustomColorHex(hex)
+    try {
+      window.localStorage.setItem(CUSTOM_COLOR_STORAGE_KEY, hex)
+    } catch (error) {
+      console.error('Could not save the custom color.', error)
+    }
+  }
+
   const colorSlots = colors.slice(0, 4)
+  const activeColorSlots = colorSlots
+    .map((color, index) => ({ color, index }))
+    .filter(({ index }) => ratios[index] > 0)
 
   return (
     <main className="paint-mix paint-mix--multi">
@@ -147,8 +175,13 @@ function MultiColorMixerPage() {
             <BreakdownDisplay colors={colorSlots} language={language} ratios={ratios} />
           ) : (
             <>
-              {colorSlots.map((color, index) => (
+              {activeColorSlots.map(({ color, index }, visibleIndex) => (
                 <span className="multi-mix__equation-part" key={color.id}>
+                  {visibleIndex > 0 && (
+                    <span aria-hidden="true" className="multi-mix__equation-plus">
+                      +
+                    </span>
+                  )}
                   <span
                     aria-label={getColorName(color, language)}
                     className="multi-mix__source-dot"
@@ -158,8 +191,7 @@ function MultiColorMixerPage() {
                       height: getSourceDotSize(ratios[index]),
                     }}
                   />
-                  {index < colorSlots.length - 1 && <span aria-hidden="true">+</span>}
-                </span>
+                  </span>
               ))}
               {mix && mix.baseTotal > 0 && <span aria-hidden="true">=</span>}
               <span
@@ -232,7 +264,7 @@ function MultiColorMixerPage() {
 
       {paletteTarget !== null && (
         <ColorPaletteDialog
-          colors={PAINT_COLORS}
+          colors={sortColorsByHue(PAINT_COLORS)}
           language={language}
           onClose={() => setPaletteTarget(null)}
           onSelect={(color) => {
@@ -245,6 +277,10 @@ function MultiColorMixerPage() {
           }}
           paletteName={t.palette(paletteTarget)}
           selectedColor={colors[paletteTarget]}
+          customColorHex={customColorHex}
+          onCustomColorHexChange={updateCustomColorHex}
+          previewCustomColor
+          showCustomColorLabel={false}
         />
       )}
     </main>

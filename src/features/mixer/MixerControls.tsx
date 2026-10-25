@@ -1,6 +1,6 @@
 import { useState } from 'react'
 import type { PaintColor } from '../../domain/colors'
-import { getColorName, type Language } from './mixerUtils'
+import { getColorName, getTextColor, type Language } from './mixerUtils'
 import { messages } from '../../i18n/messages'
 
 interface RatioControlProps {
@@ -42,6 +42,10 @@ interface ColorPaletteDialogProps {
   onSelect: (color: PaintColor) => void
   paletteName: string
   selectedColor: PaintColor
+  customColorHex?: string
+  onCustomColorHexChange?: (hex: string) => void
+  showCustomColorLabel?: boolean
+  previewCustomColor?: boolean
 }
 
 export function ColorPaletteDialog({
@@ -51,10 +55,20 @@ export function ColorPaletteDialog({
   onSelect,
   paletteName,
   selectedColor,
+  customColorHex,
+  onCustomColorHexChange,
+  showCustomColorLabel = true,
+  previewCustomColor = false,
 }: ColorPaletteDialogProps) {
-  const [customHex, setCustomHex] = useState('#eeeeee')
+  const [localCustomHex, setLocalCustomHex] = useState('#eeeeee')
+  const customHex = customColorHex ?? localCustomHex
   const t = messages[language]
   const customName = t.customColor
+
+  function changeCustomHex(hex: string) {
+    setLocalCustomHex(hex)
+    onCustomColorHexChange?.(hex)
+  }
 
   return (
     <div className="paint-mix__backdrop" onClick={onClose}>
@@ -86,11 +100,11 @@ export function ColorPaletteDialog({
           ))}
         </div>
         <div className="paint-mix__custom-color">
-          <label htmlFor="custom-color">{customName}</label>
+          {showCustomColorLabel && <label htmlFor="custom-color">{customName}</label>}
           <input
             aria-label={customName}
             id="custom-color"
-            onChange={(event) => setCustomHex(event.target.value)}
+            onChange={(event) => changeCustomHex(event.target.value)}
             type="color"
             value={customHex}
           />
@@ -102,6 +116,11 @@ export function ColorPaletteDialog({
                 name: customName,
                 nameJa: customName,
               })
+            }
+            style={
+              previewCustomColor
+                ? { backgroundColor: customHex, color: getTextColor(customHex) }
+                : undefined
             }
             type="button"
           >
