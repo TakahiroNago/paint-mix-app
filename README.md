@@ -1,5 +1,7 @@
 # PaintMix — 絵の具の混色Webアプリ
 
+![PaintMixのメイン画面](docs/images/paintmix-main.png)
+
 ReactとTypeScriptを使用して開発した、絵の具の混色をシミュレーションするWebアプリケーションです。
 
 **公開デモ：** https://paint.art-full-stack.com
