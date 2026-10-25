@@ -149,6 +149,15 @@ function LicenseDialog({ license, onClose }: LicenseDialogProps) {
         <a href="https://scrtwpns.com/mixbox/" rel="noopener noreferrer" target="_blank">
           https://scrtwpns.com/mixbox/
         </a>
+        <p>
+          <a
+            href="https://creativecommons.org/licenses/by-nc/4.0/"
+            rel="noopener noreferrer"
+            target="_blank"
+          >
+            CC BY-NC 4.0
+          </a>
+        </p>
         <hr />
         <p>{license.copyright}</p>
         <p>{license.terms}</p>
