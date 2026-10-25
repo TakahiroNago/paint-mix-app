@@ -7,6 +7,30 @@ export interface TwoColorMix {
   whiteGradient: string
 }
 
+export interface MultiColorMix {
+  firstPair: string
+  secondPair: string
+  base: string
+  withFifthColor: string
+  baseTotal: number
+}
+
+export type MultiColorValues = [
+  color1: string,
+  color2: string,
+  color3: string,
+  color4: string,
+  color5: string,
+]
+
+export type MultiColorRatios = [
+  ratio1: number,
+  ratio2: number,
+  ratio3: number,
+  ratio4: number,
+  ratio5: number,
+]
+
 export function calculateTwoColorMix(
   mixbox: MixboxApi,
   color1: string,
@@ -26,6 +50,36 @@ export function calculateTwoColorMix(
     baseGradient: createGradient(mixbox, color1, color2, base, ratio),
     whiteGradient: createGradient(mixbox, base, white, withWhite, whiteMixRatio),
   }
+}
+
+export function calculateMultiColorMix(
+  mixbox: MixboxApi,
+  colors: MultiColorValues,
+  ratios: MultiColorRatios,
+): MultiColorMix {
+  const firstPairTotal = ratios[0] + ratios[1]
+  const secondPairTotal = ratios[2] + ratios[3]
+  const baseTotal = firstPairTotal + secondPairTotal
+  const firstPair =
+    firstPairTotal === 0
+      ? colors[0]
+      : mixbox.lerp(colors[0], colors[1], ratios[1] / firstPairTotal)
+  const secondPair =
+    secondPairTotal === 0
+      ? colors[2]
+      : mixbox.lerp(colors[2], colors[3], ratios[3] / secondPairTotal)
+  const base =
+    baseTotal === 0
+      ? '#999999'
+      : mixbox.lerp(firstPair, secondPair, secondPairTotal / baseTotal)
+  const withFifthColor =
+    baseTotal === 0
+      ? ratios[4] === 0
+        ? '#999999'
+        : colors[4]
+      : mixbox.lerp(base, colors[4], ratios[4] / 20)
+
+  return { firstPair, secondPair, base, withFifthColor, baseTotal }
 }
 
 function createGradient(

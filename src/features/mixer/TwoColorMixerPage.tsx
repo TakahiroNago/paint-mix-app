@@ -8,10 +8,11 @@ import {
 } from '../../domain/colors'
 import { loadMixbox, type MixboxApi } from '../../domain/mixbox'
 import { calculateTwoColorMix } from '../../domain/mixing'
+import { ColorPaletteDialog, RatioControl } from './MixerControls'
+import { getColorName, getTextColor, type Language } from './mixerUtils'
 import './TwoColorMixerPage.css'
 
-type Language = 'en' | 'ja'
-type PaletteTarget = 0 | 1
+type PaletteTarget = number
 
 interface Messages {
   title: string
@@ -90,18 +91,7 @@ function getInitialNameVisibility(): boolean {
   }
 }
 
-function getColorName(color: PaintColor, language: Language): string {
-  return language === 'ja' ? color.nameJa : color.name
-}
-
-function getTextColor(hex: string): string {
-  const red = Number.parseInt(hex.slice(1, 3), 16)
-  const green = Number.parseInt(hex.slice(3, 5), 16)
-  const blue = Number.parseInt(hex.slice(5, 7), 16)
-  return red + 1.4 * green + 0.8 * blue < 450 ? '#fff' : '#6c757d'
-}
-
-function TwoColorMixerPage() {
+export function TwoColorMixerPage() {
   const [language, setLanguage] = useState<Language>(getInitialLanguage)
   const [showNames, setShowNames] = useState(getInitialNameVisibility)
   const [colors, setColors] = useState<[PaintColor, PaintColor]>(DEFAULT_COLORS)
@@ -298,6 +288,10 @@ function TwoColorMixerPage() {
           style={{ background: mix ? (gradient ? mix.whiteGradient : mix.withWhite) : '#ddd' }}
         />
 
+        <a className="paint-mix__more-link" href="/more">
+          {language === 'ja' ? 'もっと色を混ぜる' : 'Mix More Color'}
+        </a>
+
         {!mix && !loadError && <p className="paint-mix__status">{t.loading}</p>}
         {loadError && (
           <div className="paint-mix__error" role="alert">
@@ -379,115 +373,6 @@ function TwoColorMixerPage() {
         </div>
       )}
     </main>
-  )
-}
-
-interface RatioControlProps {
-  label: string
-  value: number
-  onChange: (value: number) => void
-}
-
-function RatioControl({ label, onChange, value }: RatioControlProps) {
-  return (
-    <div className="paint-mix__ratio">
-      <label className="paint-mix__label" htmlFor={label}>
-        {label}
-      </label>
-      <div className="paint-mix__ratio-controls">
-        <button aria-label={`${label} −`} onClick={() => onChange(value - 1)} type="button">
-          −
-        </button>
-        <input
-          id={label}
-          max="20"
-          min="0"
-          onChange={(event) => onChange(Number(event.target.value))}
-          type="range"
-          value={value}
-        />
-        <button aria-label={`${label} +`} onClick={() => onChange(value + 1)} type="button">
-          +
-        </button>
-      </div>
-    </div>
-  )
-}
-
-interface ColorPaletteDialogProps {
-  colors: PaintColor[]
-  language: Language
-  onClose: () => void
-  onSelect: (color: PaintColor) => void
-  paletteName: string
-  selectedColor: PaintColor
-}
-
-function ColorPaletteDialog({
-  colors,
-  language,
-  onClose,
-  onSelect,
-  paletteName,
-  selectedColor,
-}: ColorPaletteDialogProps) {
-  const [customHex, setCustomHex] = useState('#eeeeee')
-  const customName = language === 'ja' ? 'カスタムカラー' : 'Custom Color'
-
-  return (
-    <div className="paint-mix__backdrop" onClick={onClose}>
-      <section
-        aria-label={paletteName}
-        aria-modal="true"
-        className="paint-mix__dialog"
-        onClick={(event) => event.stopPropagation()}
-        role="dialog"
-      >
-        <div className="paint-mix__dialog-header">
-          <h2>{paletteName}</h2>
-          <button aria-label={language === 'ja' ? '閉じる' : 'Close'} onClick={onClose} type="button">
-            ×
-          </button>
-        </div>
-        <div className="paint-mix__palette-grid">
-          {colors.map((color) => (
-            <button
-              aria-label={getColorName(color, language)}
-              aria-pressed={selectedColor.id === color.id}
-              className="paint-mix__palette-swatch"
-              key={color.id}
-              onClick={() => onSelect(color)}
-              style={{ backgroundColor: color.hex }}
-              title={getColorName(color, language)}
-              type="button"
-            />
-          ))}
-        </div>
-        <div className="paint-mix__custom-color">
-          <label htmlFor="custom-color">{customName}</label>
-          <input
-            aria-label={customName}
-            id="custom-color"
-            onChange={(event) => setCustomHex(event.target.value)}
-            type="color"
-            value={customHex}
-          />
-          <button
-            onClick={() =>
-              onSelect({
-                id: `custom-${customHex}`,
-                hex: customHex,
-                name: customName,
-                nameJa: customName,
-              })
-            }
-            type="button"
-          >
-            {customName}
-          </button>
-        </div>
-      </section>
-    </div>
   )
 }
 

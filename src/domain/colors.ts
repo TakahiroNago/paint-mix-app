@@ -29,5 +29,19 @@ export const DEFAULT_COLORS: [PaintColor, PaintColor] = [
   PAINT_COLORS[8],
 ]
 
+export const MULTI_COLOR_DEFAULTS: [
+  PaintColor,
+  PaintColor,
+  PaintColor,
+  PaintColor,
+  PaintColor,
+] = [
+  PAINT_COLORS[0],
+  PAINT_COLORS[11],
+  PAINT_COLORS[9],
+  PAINT_COLORS[7],
+  PAINT_COLORS[15],
+]
+
 export const TITANIUM_WHITE = PAINT_COLORS[15]
 export const MIXABLE_PIGMENTS = PAINT_COLORS.slice(0, 15)

@@ -1,0 +1,141 @@
+.paint-mix--multi {
+  width: min(100% - 24px, 520px);
+}
+
+.paint-mix__back-link {
+  position: absolute;
+  left: 0;
+  color: #6c757d;
+  font-size: 1.5rem;
+  text-decoration: none;
+}
+
+.multi-mix__color-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 16px 12px;
+}
+
+.multi-mix__color-slot {
+  min-width: 0;
+}
+
+.multi-mix__color-slot .paint-mix__ratio {
+  margin-top: 8px;
+}
+
+.multi-mix__color-slot .paint-mix__ratio-controls {
+  gap: 4px;
+}
+
+.multi-mix__color-slot .paint-mix__ratio-controls input {
+  min-width: 0;
+}
+
+.multi-mix__color-slot .paint-mix__ratio-controls button {
+  width: 24px;
+  flex: 0 0 24px;
+}
+
+.multi-mix__equation {
+  display: flex;
+  min-height: 90px;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  border-top: 1px solid #dee2e6;
+  border-bottom: 1px solid #dee2e6;
+  margin-top: 18px;
+  padding: 12px 2px;
+}
+
+.multi-mix__equation-part {
+  display: contents;
+}
+
+.multi-mix__equation-part > span:first-child {
+  flex: 0 0 auto;
+}
+
+.multi-mix__source-dot {
+  min-width: 0;
+  min-height: 0;
+  border: 1px solid rgba(221, 221, 221, 0.7);
+  border-radius: 50%;
+}
+
+.multi-mix__base-result {
+  width: 64px;
+  height: 64px;
+  flex: 0 0 64px;
+  border: 1px solid rgba(221, 221, 221, 0.7);
+  border-radius: 50%;
+}
+
+.multi-mix__breakdown {
+  display: flex;
+  width: min(100%, 210px);
+  min-height: 40px;
+  align-content: flex-start;
+  flex-wrap: wrap;
+  gap: 2px;
+  background: #fff;
+}
+
+.multi-mix__breakdown-unit {
+  width: 8px;
+  height: 8px;
+  border: 1px solid rgba(221, 221, 221, 0.5);
+  border-radius: 2px;
+}
+
+.multi-mix__fifth-row {
+  display: grid;
+  grid-template-columns: 20px minmax(0, 1fr) 24px 64px;
+  align-items: center;
+  gap: 8px;
+  margin-top: 14px;
+}
+
+.multi-mix__fifth-color {
+  min-width: 0;
+}
+
+.multi-mix__fifth-color .paint-mix__ratio {
+  margin-top: 8px;
+}
+
+.multi-mix__operator {
+  text-align: center;
+  font-size: 1.15rem;
+  font-weight: 700;
+}
+
+.multi-mix__final-result {
+  width: 64px;
+  height: 64px;
+  border: 1px solid rgba(221, 221, 221, 0.7);
+  border-radius: 6px;
+}
+
+@media (max-width: 420px) {
+  .multi-mix__equation {
+    gap: 4px;
+  }
+
+  .multi-mix__base-result {
+    width: 52px;
+    height: 52px;
+    flex-basis: 52px;
+  }
+
+  .multi-mix__fifth-row {
+    grid-template-columns: 16px minmax(0, 1fr) 18px 54px;
+    gap: 5px;
+  }
+
+  .multi-mix__final-result {
+    width: 54px;
+    height: 54px;
+  }
+}
