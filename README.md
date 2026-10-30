@@ -1,31 +1,43 @@
-# PaintMix — 絵の具の混色Webアプリ
+# PaintMix
 
-![PaintMixのメイン画面](docs/images/paintmix-main.png)
+絵の具の混色をシミュレーションするWebアプリケーションです。
 
-ReactとTypeScriptを使用して開発した、絵の具の混色をシミュレーションするWebアプリケーションです。
+**公開デモ：** https://paint.art-full-stack.com/
 
-**公開デモ：** https://paint.art-full-stack.com
+![PaintMixの画面](docs/images/paintmix-main.png)
 
 ## 概要
 
-PaintMixは、複数の絵の具の色を混ぜ合わせたときの色の変化をブラウザ上で確認できるWebアプリケーションです。
+複数の絵の具の色を混ぜ合わせたときの色の変化を、ブラウザ上で確認できます。
 
-ReactによるUI設計とTypeScriptによる型安全性を意識し、保守性と拡張性を考慮して開発しています。
+2色の混合比や白を混ぜる量を調整でき、さらに色を追加して混ぜることもできます。
 
 ## 主な機能
 
-- 絵の具の色を混ぜ合わせる混色機能
-- 混色結果のリアルタイムプレビュー
-- ブラウザ上で動作するインターフェース
+- 2色の混色と、混合比の調整
+- 混色結果に白を混ぜる量の調整
+- 混色の途中経過を示すグラデーションの表示
+- 色を追加した混色（最大5色）と、混合比の分解表示
+- 日本語・英語のUI
+- 言語や色名の表示設定などをブラウザ内に保存
 
 ## 使用技術
 
 - React
 - TypeScript
 - Vite
-- Mixbox 2.0.0
+- Mixbox 2.0.0（混色処理）
+- Vitest / Testing Library（テスト）
+- Oxlint（静的解析）
 
-## 開発環境の構築
+## 技術的な取り組み
+
+- React / TypeScriptによるUI設計と型安全な実装
+- 混色の計算処理（`src/domain/`）と画面（`src/features/`）の分離
+- 日本語・英語のメッセージを型で管理する多言語対応（`src/i18n/`）
+- 混色処理と画面のテスト
+
+## ローカル開発環境
 
 ### 必要な環境
 
@@ -46,11 +58,13 @@ npm install
 npm run dev
 ```
 
-### 本番用ビルド
+### 本番ビルド
 
 ```bash
 npm run build
 ```
+
+型チェックと本番用ビルドを実行します。
 
 ### ビルド結果の確認
 
@@ -58,11 +72,20 @@ npm run build
 npm run preview
 ```
 
-## 混色エンジンについて
+### テスト・静的解析
 
-混色処理には、絵の具の混色をシミュレーションするMixboxを使用しています。
+```bash
+npm test
+npm run lint
+```
 
-Mixboxは外部ライブラリです。利用条件やライセンスについては、公式のドキュメントおよびライセンス情報を参照してください。
+Vitestで、混色処理（`src/domain/mixing.test.ts`）と画面の操作（`src/features/mixer/MixerPages.test.tsx`）をテストします。
+
+## Mixboxについて
+
+混色処理には、外部ライブラリの[Mixbox](https://github.com/scrtwpns/mixbox)を使用しています。
+
+MixboxはCC BY-NC 4.0ライセンスに基づき、非営利目的に限り利用できます。Copyright (c) 2022, Secret Weapons. All rights reserved.
 
 ## ライセンス
 
