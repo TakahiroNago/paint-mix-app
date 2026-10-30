@@ -82,6 +82,14 @@ export function calculateMultiColorMix(
   return { firstPair, secondPair, base, withFifthColor, baseTotal }
 }
 
+export function createMixTrack(mixbox: MixboxApi, color1: string, color2: string): string {
+  const stops = [0, 0.25, 0.5, 0.75, 1].map((amount) =>
+    amount === 0 ? color1 : amount === 1 ? color2 : mixbox.lerp(color1, color2, amount),
+  )
+
+  return `linear-gradient(to right, ${stops.join(', ')})`
+}
+
 function createGradient(
   mixbox: MixboxApi,
   color1: string,

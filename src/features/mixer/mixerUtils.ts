@@ -14,28 +14,46 @@ export function getTextColor(hex: string): string {
   return red + 1.4 * green + 0.8 * blue < 450 ? '#fff' : '#6c757d'
 }
 
-export function getColorHue(color: string): number {
+function parseRgb(color: string): [number, number, number] | null {
   const hexMatch = /^#([\da-f]{3}|[\da-f]{6})$/i.exec(color)
-  const rgbMatch = /^rgba?\(\s*([\d.]+)[,\s]+([\d.]+)[,\s]+([\d.]+)/i.exec(color)
-  let red: number
-  let green: number
-  let blue: number
-
   if (hexMatch) {
     const value =
       hexMatch[1].length === 3
         ? hexMatch[1].split('').map((channel) => channel + channel).join('')
         : hexMatch[1]
-    red = Number.parseInt(value.slice(0, 2), 16) / 255
-    green = Number.parseInt(value.slice(2, 4), 16) / 255
-    blue = Number.parseInt(value.slice(4, 6), 16) / 255
-  } else if (rgbMatch) {
-    red = Number(rgbMatch[1]) / 255
-    green = Number(rgbMatch[2]) / 255
-    blue = Number(rgbMatch[3]) / 255
-  } else {
+    return [
+      Number.parseInt(value.slice(0, 2), 16),
+      Number.parseInt(value.slice(2, 4), 16),
+      Number.parseInt(value.slice(4, 6), 16),
+    ]
+  }
+
+  const rgbMatch = /^rgba?\(\s*([\d.]+)[,\s]+([\d.]+)[,\s]+([\d.]+)/i.exec(color)
+  if (rgbMatch) {
+    return [Number(rgbMatch[1]), Number(rgbMatch[2]), Number(rgbMatch[3])]
+  }
+
+  return null
+}
+
+export function toHexColor(color: string): string {
+  const rgb = parseRgb(String(color))
+  if (!rgb) {
+    throw new Error(`Unsupported color format: ${color}`)
+  }
+
+  return `#${rgb
+    .map((channel) => Math.round(Math.max(0, Math.min(255, channel))).toString(16).padStart(2, '0'))
+    .join('')}`.toUpperCase()
+}
+
+export function getColorHue(color: string): number {
+  const rgb = parseRgb(String(color))
+  if (!rgb) {
     throw new Error(`Unsupported color format for hue sorting: ${color}`)
   }
+
+  const [red, green, blue] = rgb.map((channel) => channel / 255)
 
   const maximum = Math.max(red, green, blue)
   const minimum = Math.min(red, green, blue)
