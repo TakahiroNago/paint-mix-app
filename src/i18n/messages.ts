@@ -9,6 +9,9 @@ interface SharedMessages {
   palette: (index: number) => string
   customColor: string
   close: string
+  copy: string
+  copied: string
+  copyColorCode: (label: string) => string
   loading: string
   loadError: string
   retry: string
@@ -42,6 +45,10 @@ interface TwoColorMessages {
   mixRatio: string
   mixWithWhite: string
   mixedColor: string
+  ratioValue: (first: number, second: number) => string
+  whiteValue: (white: number) => string
+  mixedResult: string
+  whiteResult: string
   gradient: string
   moreColors: string
 }
@@ -71,6 +78,9 @@ export const messages: Record<Language, AppMessages> = {
     palette: (index) => `Palette ${index + 1}`,
     customColor: 'Custom Color',
     close: 'Close',
+    copy: 'Copy',
+    copied: 'Copied',
+    copyColorCode: (label) => `Copy color code of ${label}`,
     loading: 'Loading color-mixing engine…',
     loadError: 'The color-mixing engine could not be loaded. Check your connection and retry.',
     retry: 'Retry',
@@ -109,6 +119,10 @@ export const messages: Record<Language, AppMessages> = {
       mixRatio: 'Mix Ratio',
       mixWithWhite: 'Mix with White',
       mixedColor: 'Select from Mixed Colors',
+      ratioValue: (first, second) => `Color 1 ${first}% : Color 2 ${second}%`,
+      whiteValue: (white) => `White ${white}%`,
+      mixedResult: 'Mixed color',
+      whiteResult: 'Mixed with white',
       gradient: 'Gradient',
       moreColors: 'Mix More Color',
     },
@@ -131,6 +145,9 @@ export const messages: Record<Language, AppMessages> = {
     palette: (index) => `パレット${index + 1}`,
     customColor: 'カスタムカラー',
     close: '閉じる',
+    copy: 'コピー',
+    copied: 'コピーしました',
+    copyColorCode: (label) => `${label}のカラーコードをコピー`,
     loading: '混色エンジンを読み込んでいます…',
     loadError: '混色エンジンを読み込めませんでした。接続を確認して再試行してください。',
     retry: '再試行',
@@ -169,6 +186,10 @@ export const messages: Record<Language, AppMessages> = {
       mixRatio: '混合比',
       mixWithWhite: '白を混ぜる',
       mixedColor: '混色から選択',
+      ratioValue: (first, second) => `色1 ${first}% : 色2 ${second}%`,
+      whiteValue: (white) => `白 ${white}%`,
+      mixedResult: '混色結果',
+      whiteResult: '白を混ぜた色',
       gradient: 'グラデーション',
       moreColors: 'もっと色を混ぜる',
     },

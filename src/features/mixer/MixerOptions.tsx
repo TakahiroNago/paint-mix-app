@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import type { Language } from './mixerUtils'
 
 interface MixerOptionsProps {
@@ -25,6 +25,35 @@ export function MixerOptions({
   onToggleMode,
 }: MixerOptionsProps) {
   const [showOptions, setShowOptions] = useState(false)
+  const buttonRef = useRef<HTMLButtonElement>(null)
+  const panelRef = useRef<HTMLElement>(null)
+
+  useEffect(() => {
+    if (!showOptions) {
+      return
+    }
+
+    function handleKeyDown(event: KeyboardEvent) {
+      if (event.key === 'Escape') {
+        setShowOptions(false)
+        buttonRef.current?.focus()
+      }
+    }
+
+    function handlePointerDown(event: PointerEvent) {
+      const target = event.target as Node
+      if (!buttonRef.current?.contains(target) && !panelRef.current?.contains(target)) {
+        setShowOptions(false)
+      }
+    }
+
+    document.addEventListener('keydown', handleKeyDown)
+    document.addEventListener('pointerdown', handlePointerDown)
+    return () => {
+      document.removeEventListener('keydown', handleKeyDown)
+      document.removeEventListener('pointerdown', handlePointerDown)
+    }
+  }, [showOptions])
 
   return (
     <>
@@ -33,12 +62,13 @@ export function MixerOptions({
         aria-label={optionsLabel}
         className="paint-mix__menu-button"
         onClick={() => setShowOptions((open) => !open)}
+        ref={buttonRef}
         type="button"
       >
         ☰
       </button>
       {showOptions && (
-        <section aria-label={optionsLabel} className="paint-mix__options">
+        <section aria-label={optionsLabel} className="paint-mix__options" ref={panelRef}>
           <h2>{optionsLabel}</h2>
           <button
             aria-pressed={modeActive}

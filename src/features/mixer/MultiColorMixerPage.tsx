@@ -9,7 +9,7 @@ import {
   calculateMultiColorMix,
   type MultiColorRatios,
 } from '../../domain/mixing'
-import { ColorPaletteDialog, RatioControl } from './MixerControls'
+import { ColorCode, ColorPaletteDialog, RatioControl } from './MixerControls'
 import { MixerOptions } from './MixerOptions'
 import { GuideHint } from './GuideHint'
 import { getColorName, getTextColor, sortColorsByHue, type Language } from './mixerUtils'
@@ -99,6 +99,7 @@ function MultiColorMixerPage() {
     }
   }
 
+  const baseRatioTotal = ratios[0] + ratios[1] + ratios[2] + ratios[3]
   const colorSlots = colors.slice(0, 4)
   const activeColorSlots = colorSlots
     .map((color, index) => ({ color, index }))
@@ -152,6 +153,7 @@ function MultiColorMixerPage() {
                   updateRatio(index, value)
                 }}
                 value={ratios[index]}
+                valueText={`${baseRatioTotal === 0 ? 0 : Math.round((ratios[index] / baseRatioTotal) * 100)}%`}
               />
             </div>
           ))}
@@ -219,6 +221,7 @@ function MultiColorMixerPage() {
                 updateRatio(4, value)
               }}
               value={ratios[4]}
+              valueText={`${Math.round((ratios[4] / 20) * 100)}%`}
             />
           </div>
           <span aria-hidden="true" className="multi-mix__operator">=</span>
@@ -228,6 +231,9 @@ function MultiColorMixerPage() {
             style={{ backgroundColor: mix?.withFifthColor ?? '#ddd' }}
           />
         </div>
+        {mix && (
+          <ColorCode color={mix.withFifthColor} label={multiColor.finalResult} language={language} />
+        )}
 
         {!mix && !loadError && <p className="paint-mix__status">{t.loading}</p>}
         {loadError && (

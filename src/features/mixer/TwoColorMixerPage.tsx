@@ -7,8 +7,9 @@ import {
   type PaintColor,
 } from '../../domain/colors'
 import { loadMixbox, type MixboxApi } from '../../domain/mixbox'
-import { calculateTwoColorMix } from '../../domain/mixing'
-import { ColorPaletteDialog, RatioControl } from './MixerControls'
+import { calculateTwoColorMix, createMixTrack } from '../../domain/mixing'
+import { ColorCode, ColorPaletteDialog, RatioControl } from './MixerControls'
+import { ModalDialog } from './ModalDialog'
 import { MixerOptions } from './MixerOptions'
 import { GuideHint } from './GuideHint'
 import { getHueOrderFromYellow, getColorName, getTextColor, sortColorsByHue } from './mixerUtils'
@@ -32,6 +33,10 @@ function readCustomColorHex(): string {
   }
 
   return '#eeeeee'
+}
+
+function toPercent(ratio: number): number {
+  return Math.round((ratio / 20) * 100)
 }
 
 export function TwoColorMixerPage() {
@@ -185,7 +190,9 @@ export function TwoColorMixerPage() {
             markRatiosTouched()
             updateRatio(setColorRatio, value)
           }}
+          trackBackground={mixbox ? createMixTrack(mixbox, colors[0].hex, colors[1].hex) : undefined}
           value={colorRatio}
+          valueText={twoColor.ratioValue(100 - toPercent(colorRatio), toPercent(colorRatio))}
         />
         {visibleStep === 'ratio' && (
           <GuideHint language={language} onDismiss={dismissCurrentStep} step={visibleStep} />
@@ -193,7 +200,7 @@ export function TwoColorMixerPage() {
 
         <button
           aria-label={twoColor.mixedColor}
-          className="paint-mix__result"
+          className="paint-mix__result paint-mix__result--selectable"
           disabled={!mix}
           onClick={() => {
             markResultTouched()
@@ -203,6 +210,7 @@ export function TwoColorMixerPage() {
           type="button"
         >
         </button>
+        {mix && <ColorCode color={mix.base} label={twoColor.mixedResult} language={language} />}
         {visibleStep === 'result' && (
           <GuideHint language={language} onDismiss={dismissCurrentStep} step={visibleStep} />
         )}
@@ -210,7 +218,9 @@ export function TwoColorMixerPage() {
         <RatioControl
           label={twoColor.mixWithWhite}
           onChange={(value) => updateRatio(setWhiteRatio, value)}
+          trackBackground={mix && mixbox ? createMixTrack(mixbox, mix.base, TITANIUM_WHITE.hex) : undefined}
           value={whiteRatio}
+          valueText={twoColor.whiteValue(toPercent(whiteRatio))}
         />
 
         <div
@@ -218,6 +228,7 @@ export function TwoColorMixerPage() {
           className="paint-mix__result paint-mix__result--white"
           style={{ background: mix ? (gradient ? mix.whiteGradient : mix.withWhite) : '#ddd' }}
         />
+        {mix && <ColorCode color={mix.withWhite} label={twoColor.whiteResult} language={language} />}
 
         <a className="paint-mix__more-link" href="/more">
           {twoColor.moreColors}
@@ -273,37 +284,28 @@ export function TwoColorMixerPage() {
       )}
 
       {showMixedColors && (
-        <div className="paint-mix__backdrop" onClick={() => setShowMixedColors(false)}>
-          <section
-            aria-label={twoColor.mixedColor}
-            aria-modal="true"
-            className="paint-mix__dialog paint-mix__dialog--mixed"
-            onClick={(event) => event.stopPropagation()}
-            role="dialog"
-          >
-            <div className="paint-mix__dialog-header">
-              <h2>{twoColor.mixedColor}</h2>
-              <button aria-label={t.close} onClick={() => setShowMixedColors(false)} type="button">
-                ×
+        <ModalDialog
+          className="paint-mix__dialog--mixed"
+          closeLabel={t.close}
+          onClose={() => setShowMixedColors(false)}
+          title={twoColor.mixedColor}
+        >
+          <div className="paint-mix__mixed-grid">
+            {mixedColorPairs.map(({ first, second, color }, index) => (
+              <button
+                aria-label={`${getColorName(first, language)} + ${getColorName(second, language)}`}
+                className="paint-mix__mixed-swatch"
+                key={`${first.id}-${second.id}`}
+                onClick={() => chooseMixedColors(first, second)}
+                style={{ backgroundColor: color }}
+                title={`${getColorName(first, language)} + ${getColorName(second, language)}`}
+                type="button"
+              >
+                <span>{index + 1}</span>
               </button>
-            </div>
-            <div className="paint-mix__mixed-grid">
-              {mixedColorPairs.map(({ first, second, color }, index) => (
-                <button
-                  aria-label={`${getColorName(first, language)} + ${getColorName(second, language)}`}
-                  className="paint-mix__mixed-swatch"
-                  key={`${first.id}-${second.id}`}
-                  onClick={() => chooseMixedColors(first, second)}
-                  style={{ backgroundColor: color }}
-                  title={`${getColorName(first, language)} + ${getColorName(second, language)}`}
-                  type="button"
-                >
-                  <span>{index + 1}</span>
-                </button>
-              ))}
-            </div>
-          </section>
-        </div>
+            ))}
+          </div>
+        </ModalDialog>
       )}
     </main>
   )

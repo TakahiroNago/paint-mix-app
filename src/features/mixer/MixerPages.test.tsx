@@ -126,6 +126,73 @@ describe('TwoColorMixerPage', () => {
     expect(hueOrders).toEqual([...hueOrders].sort((first, second) => first - second))
   })
 
+  it('shows ratio values as percentages', async () => {
+    render(<TwoColorMixerPage />)
+
+    const ratio = await screen.findByRole('slider', { name: 'Mix Ratio' })
+    expect(ratio).toHaveAttribute('aria-valuetext', 'Color 1 50% : Color 2 50%')
+    fireEvent.change(ratio, { target: { value: '15' } })
+    expect(ratio).toHaveAttribute('aria-valuetext', 'Color 1 25% : Color 2 75%')
+    expect(screen.getByText('Color 1 25% : Color 2 75%')).toBeInTheDocument()
+
+    const white = screen.getByRole('slider', { name: 'Mix with White' })
+    fireEvent.change(white, { target: { value: '4' } })
+    expect(white).toHaveAttribute('aria-valuetext', 'White 20%')
+  })
+
+  it('shows and copies the mixed color code', async () => {
+    const user = userEvent.setup()
+    render(<TwoColorMixerPage />)
+
+    expect(await screen.findAllByText('#800000')).toHaveLength(2)
+    await user.click(screen.getByRole('button', { name: 'Copy color code of Mixed color' }))
+    await expect(navigator.clipboard.readText()).resolves.toBe('#800000')
+    expect(
+      screen.getByRole('button', { name: 'Copy color code of Mixed color' }),
+    ).toHaveTextContent('Copied')
+  })
+
+  it('closes dialogs with Escape and returns focus to the opener', async () => {
+    const user = userEvent.setup()
+    render(<TwoColorMixerPage />)
+
+    const opener = screen.getByRole('button', { name: /Select Color 1:/ })
+    await user.click(opener)
+    const palette = screen.getByRole('dialog', { name: 'Palette 1' })
+    expect(palette).toHaveFocus()
+    await user.keyboard('{Escape}')
+    expect(screen.queryByRole('dialog', { name: 'Palette 1' })).not.toBeInTheDocument()
+    expect(opener).toHaveFocus()
+  })
+
+  it('keeps keyboard focus inside an open dialog', async () => {
+    const user = userEvent.setup()
+    render(<TwoColorMixerPage />)
+
+    await user.click(screen.getByRole('button', { name: /Select Color 1:/ }))
+    const palette = screen.getByRole('dialog', { name: 'Palette 1' })
+    await user.tab({ shift: true })
+    expect(within(palette).getByRole('button', { name: 'Custom Color' })).toHaveFocus()
+    await user.tab()
+    expect(within(palette).getByRole('button', { name: 'Close' })).toHaveFocus()
+  })
+
+  it('closes the options menu with Escape or an outside click', async () => {
+    const user = userEvent.setup()
+    render(<TwoColorMixerPage />)
+
+    const menuButton = screen.getByRole('button', { name: 'Options' })
+    await user.click(menuButton)
+    expect(screen.getByRole('region', { name: 'Options' })).toBeInTheDocument()
+    await user.keyboard('{Escape}')
+    expect(screen.queryByRole('region', { name: 'Options' })).not.toBeInTheDocument()
+    expect(menuButton).toHaveFocus()
+
+    await user.click(menuButton)
+    await user.click(screen.getByRole('slider', { name: 'Mix Ratio' }))
+    expect(screen.queryByRole('region', { name: 'Options' })).not.toBeInTheDocument()
+  })
+
   it('changes language without showing a license option in the menu', async () => {
     const user = userEvent.setup()
     render(<TwoColorMixerPage />)
