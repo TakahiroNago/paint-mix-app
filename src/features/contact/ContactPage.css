@@ -1,75 +1,97 @@
-.contact-page {
-  width: min(100% - 32px, 560px);
-  margin: 24px auto;
-  color: #6c757d;
-  font-family: 'Zen Maru Gothic', 'Noto Sans JP', sans-serif;
+.contact {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
 }
 
-.contact-page__header {
-  margin-bottom: 16px;
-  text-align: center;
+.contact__card {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  border-radius: 18px;
+  background: #fff;
+  padding: 20px;
 }
 
-.contact-page__brand {
-  color: #6c757d;
-  font-size: 1.5rem;
+.contact__label {
+  margin: 0;
+  color: var(--pm-muted);
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.contact__address {
+  margin: 0;
+  font-family: var(--pm-mono);
+  font-size: 17px;
+  word-break: break-all;
+}
+
+.contact__send,
+.contact__copy {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 14px;
+}
+
+.contact__send {
+  height: 52px;
+  background: var(--pm-ink);
+  color: #fff !important;
+  font-size: 16px;
   font-weight: 700;
   text-decoration: none;
 }
 
-.contact-page__card {
-  border: 1px solid #dee2e6;
-  border-radius: 10px;
-  padding: 24px;
+.contact__send:hover {
+  background: #0b3d91;
 }
 
-.contact-page__card h1 {
-  margin: 0 0 16px;
-  color: #6c757d;
-  font-size: 1.4rem;
+.contact__copy {
+  height: 48px;
+  border: 1px solid var(--pm-border);
+  background: #fff;
+  font-size: 15px !important;
+  font-weight: 700 !important;
 }
 
-.contact-page__card p {
-  line-height: 1.8;
-}
-
-.contact-page__details {
-  margin: 24px 0;
-}
-
-.contact-page__details div {
-  border-top: 1px solid #dee2e6;
-  padding: 14px 0;
-}
-
-.contact-page__details dt {
-  font-weight: 700;
-}
-
-.contact-page__details dd {
-  margin: 6px 0 0;
-}
-
-.contact-page__details a {
-  color: #0d6efd;
-}
-
-.contact-page__back {
-  display: block;
-  border: 1px solid #adb5bd;
-  border-radius: 6px;
-  padding: 8px 12px;
-  color: #6c757d;
-  text-align: center;
-  text-decoration: none;
-}
-
-@media (max-width: 480px) {
-  .contact-page {
-    margin-top: 12px;
+@media (min-width: 900px) {
+  .contact {
+    display: grid;
+    width: 100%;
+    max-width: 880px;
+    grid-template-areas:
+      'title card'
+      'lead card'
+      'operator card';
+    grid-template-columns: minmax(0, 1fr) 400px;
+    grid-template-rows: auto auto 1fr;
+    align-items: start;
+    gap: 20px 48px;
+    margin: 0 auto;
   }
 
-  .contact-page__card {
-    padding: 18px;
+  .contact__title {
+    grid-area: title;
+  }
+
+  .contact__lead {
+    grid-area: lead;
+  }
+
+  .contact__operator {
+    grid-area: operator;
+  }
+
+  .contact__card {
+    grid-area: card;
+    gap: 16px;
+    border-radius: 20px;
+    padding: 28px;
+  }
+
+  .contact__address {
+    font-size: 20px;
   }
 }

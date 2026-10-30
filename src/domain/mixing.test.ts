@@ -1,102 +1,67 @@
 import { describe, expect, it, vi } from 'vitest'
 import type { MixboxApi } from './mixbox'
-import {
-  calculateMultiColorMix,
-  calculateTwoColorMix,
-  type MultiColorRatios,
-  type MultiColorValues,
-} from './mixing'
+import { calculateMix, createMixTrack, createRecipe } from './mixing'
 
 function createMixboxMock() {
-  const lerp = vi.fn(
-    (color1: string, color2: string, amount: number) =>
-      `mix(${color1},${color2},${amount})`,
+  const mix = vi.fn(
+    (colors: string[], weights: number[]) =>
+      `mix(${colors.map((color, index) => `${color}*${weights[index]}`).join(',')})`,
   )
-  return { api: { lerp } satisfies MixboxApi, lerp }
+  return { api: { mix } satisfies MixboxApi, mix }
 }
 
-describe('calculateTwoColorMix', () => {
-  it('preserves the sequential mix ratios and derives both gradients', () => {
-    const { api, lerp } = createMixboxMock()
+describe('calculateMix', () => {
+  it('mixes the paints by weight, then mixes the result with white', () => {
+    const { api } = createMixboxMock()
 
-    const result = calculateTwoColorMix(api, 'yellow', 'blue', 5, 'white', 15)
+    const result = calculateMix(api, ['yellow', 'blue'], [15, 5], 'white', 15)
 
-    expect(result.base).toBe('mix(yellow,blue,0.25)')
-    expect(result.withWhite).toBe('mix(mix(yellow,blue,0.25),white,0.75)')
-    expect(result.baseGradient).toContain('linear-gradient(to right, yellow')
-    expect(result.baseGradient).toContain('blue)')
-    expect(result.whiteGradient).toContain('linear-gradient(to right, mix(yellow,blue,0.25)')
-    expect(result.whiteGradient).toContain('white)')
-    expect(lerp.mock.calls.map(([, , amount]) => amount)).toEqual([
-      0.25,
-      0.75,
-      0.125,
-      0.625,
-      0.375,
-      0.875,
-    ])
+    expect(result.base).toBe('mix(yellow*15,blue*5)')
+    expect(result.final).toBe('mix(mix(yellow*15,blue*5)*5,white*15)')
   })
 
-  it('supports endpoint ratios without changing their direction', () => {
-    const { api, lerp } = createMixboxMock()
+  it('skips the white mix when no white is added', () => {
+    const { api, mix } = createMixboxMock()
 
-    const result = calculateTwoColorMix(api, 'yellow', 'blue', 0, 'white', 20)
+    const result = calculateMix(api, ['c1', 'c2', 'c3', 'c4'], [5, 5, 0, 5], 'white', 0)
 
-    expect(result.base).toBe('mix(yellow,blue,0)')
-    expect(result.withWhite).toBe('mix(mix(yellow,blue,0),white,1)')
-    expect(lerp.mock.calls[0]).toEqual(['yellow', 'blue', 0])
-    expect(lerp.mock.calls[1]).toEqual([result.base, 'white', 1])
+    expect(result.final).toBe(result.base)
+    expect(mix).toHaveBeenCalledTimes(1)
+  })
+
+  it('uses gray as the base when every weight is zero', () => {
+    const { api, mix } = createMixboxMock()
+
+    const result = calculateMix(api, ['c1', 'c2'], [0, 0], 'white', 0)
+
+    expect(result).toEqual({ base: '#999999', final: '#999999' })
+    expect(mix).not.toHaveBeenCalled()
   })
 })
 
-describe('calculateMultiColorMix', () => {
-  const colors: MultiColorValues = ['c1', 'c2', 'c3', 'c4', 'white']
-
-  it('mixes two pairs, combines those results, then adds the fifth color', () => {
-    const { api, lerp } = createMixboxMock()
-
-    const result = calculateMultiColorMix(api, colors, [10, 10, 10, 10, 10])
-
-    expect(result.firstPair).toBe('mix(c1,c2,0.5)')
-    expect(result.secondPair).toBe('mix(c3,c4,0.5)')
-    expect(result.base).toBe('mix(mix(c1,c2,0.5),mix(c3,c4,0.5),0.5)')
-    expect(result.withFifthColor).toBe(`mix(${result.base},white,0.5)`)
-    expect(result.baseTotal).toBe(40)
-    expect(lerp.mock.calls.map(([, , amount]) => amount)).toEqual([0.5, 0.5, 0.5, 0.5])
+describe('createRecipe', () => {
+  it('reduces the paint and white amounts to whole numbers', () => {
+    expect(createRecipe([10, 10], 10)).toEqual({ parts: [1, 1], white: 2 })
+    expect(createRecipe([13, 7], 0)).toEqual({ parts: [13, 7], white: 0 })
+    expect(createRecipe([5, 5, 5, 5], 10)).toEqual({ parts: [1, 1, 1, 1], white: 4 })
   })
 
-  it('weights a pair using its relative amounts before combining pairs', () => {
-    const { api, lerp } = createMixboxMock()
-
-    const ratios: MultiColorRatios = [0, 5, 0, 5, 20]
-    const result = calculateMultiColorMix(api, colors, ratios)
-
-    expect(result.firstPair).toBe('mix(c1,c2,1)')
-    expect(result.secondPair).toBe('mix(c3,c4,1)')
-    expect(lerp.mock.calls[2]).toEqual([result.firstPair, result.secondPair, 0.5])
-    expect(lerp.mock.calls[3]).toEqual([result.base, 'white', 1])
-    expect(result.baseTotal).toBe(10)
-    expect(lerp.mock.calls.every(([, , amount]) => Number.isFinite(amount))).toBe(true)
+  it('keeps zero-weight paints in their slots', () => {
+    expect(createRecipe([4, 0, 2, 0], 0)).toEqual({ parts: [2, 0, 1, 0], white: 0 })
   })
 
-  it('uses the fifth color directly when the first four ratios are zero', () => {
-    const { api, lerp } = createMixboxMock()
-
-    const result = calculateMultiColorMix(api, colors, [0, 0, 0, 0, 20])
-
-    expect(result.base).toBe('#999999')
-    expect(result.withFifthColor).toBe('white')
-    expect(result.baseTotal).toBe(0)
-    expect(lerp).not.toHaveBeenCalled()
+  it('handles white-only and empty mixes', () => {
+    expect(createRecipe([10, 10], 20)).toEqual({ parts: [0, 0], white: 1 })
+    expect(createRecipe([0, 0], 5)).toEqual({ parts: [0, 0], white: 1 })
   })
+})
 
-  it('returns gray when every ratio is zero', () => {
-    const { api, lerp } = createMixboxMock()
+describe('createMixTrack', () => {
+  it('builds a gradient from pigment mixes between the two colors', () => {
+    const { api } = createMixboxMock()
 
-    const result = calculateMultiColorMix(api, colors, [0, 0, 0, 0, 0])
-
-    expect(result.base).toBe('#999999')
-    expect(result.withFifthColor).toBe('#999999')
-    expect(lerp).not.toHaveBeenCalled()
+    expect(createMixTrack(api, 'yellow', 'blue')).toBe(
+      'linear-gradient(to right, yellow, mix(yellow*3,blue*1), mix(yellow*2,blue*2), mix(yellow*1,blue*3), blue)',
+    )
   })
 })
