@@ -1,5 +1,4 @@
-import TwoColorMixerPage from './features/mixer/TwoColorMixerPage'
-import MultiColorMixerPage from './features/mixer/MultiColorMixerPage'
+import MixerPage from './features/mixer/MixerPage'
 import ContactPage from './features/contact/ContactPage'
 import PrivacyPolicyPage from './features/privacy/PrivacyPolicyPage'
 
@@ -14,11 +13,7 @@ function App() {
     return <PrivacyPolicyPage />
   }
 
-  if (pathname.endsWith('/more')) {
-    return <MultiColorMixerPage />
-  }
-
-  return <TwoColorMixerPage />
+  return <MixerPage />
 }
 
 export default App

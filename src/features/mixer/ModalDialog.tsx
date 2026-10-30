@@ -62,20 +62,20 @@ export function ModalDialog({ children, className, closeLabel, onClose, title }:
   }, [])
 
   return (
-    <div className="paint-mix__backdrop" onClick={onClose}>
+    <div className="dialog-backdrop" onClick={onClose}>
       <section
         aria-label={title}
         aria-modal="true"
-        className={className ? `paint-mix__dialog ${className}` : 'paint-mix__dialog'}
+        className={className ? `dialog ${className}` : 'dialog'}
         onClick={(event) => event.stopPropagation()}
         ref={dialogRef}
         role="dialog"
         tabIndex={-1}
       >
-        <div className="paint-mix__dialog-header">
+        <div className="dialog__header">
           <h2>{title}</h2>
-          <button aria-label={closeLabel} onClick={onClose} type="button">
-            ×
+          <button className="dialog__close" onClick={onClose} type="button">
+            {closeLabel}
           </button>
         </div>
         {children}

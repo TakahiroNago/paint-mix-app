@@ -1,6 +1,10 @@
 declare module 'mixbox' {
+  type RgbArray = [number, number, number]
+
   const mixbox: {
-    lerp: (color1: string, color2: string, amount: number) => string
+    LATENT_SIZE: number
+    rgbToLatent: (color: string) => number[]
+    latentToRgb: (latent: number[]) => RgbArray
   }
 
   export default mixbox

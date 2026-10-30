@@ -14,18 +14,8 @@ function readLanguage(): Language {
   return navigator.language.toLowerCase().startsWith('ja') ? 'ja' : 'en'
 }
 
-function readNameVisibility(): boolean {
-  try {
-    return window.localStorage.getItem('nameDisp') !== 'false'
-  } catch (error) {
-    console.warn('Could not read the saved color-name preference.', error)
-    return true
-  }
-}
-
 export function useMixerPreferences() {
   const [language, setLanguage] = useState<Language>(readLanguage)
-  const [showNames, setShowNames] = useState(readNameVisibility)
 
   useEffect(() => {
     document.documentElement.lang = language
@@ -40,15 +30,5 @@ export function useMixerPreferences() {
     }
   }
 
-  function toggleNames() {
-    const nextVisibility = !showNames
-    setShowNames(nextVisibility)
-    try {
-      window.localStorage.setItem('nameDisp', String(nextVisibility))
-    } catch (error) {
-      console.error('Could not save the color-name preference.', error)
-    }
-  }
-
-  return { language, showNames, changeLanguage, toggleNames }
+  return { language, changeLanguage }
 }

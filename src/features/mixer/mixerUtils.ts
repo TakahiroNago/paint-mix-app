@@ -11,7 +11,7 @@ export function getTextColor(hex: string): string {
   const red = Number.parseInt(hex.slice(1, 3), 16)
   const green = Number.parseInt(hex.slice(3, 5), 16)
   const blue = Number.parseInt(hex.slice(5, 7), 16)
-  return red + 1.4 * green + 0.8 * blue < 450 ? '#fff' : '#6c757d'
+  return red + 1.4 * green + 0.8 * blue < 450 ? '#fff' : '#1d1d1f'
 }
 
 function parseRgb(color: string): [number, number, number] | null {
@@ -34,17 +34,6 @@ function parseRgb(color: string): [number, number, number] | null {
   }
 
   return null
-}
-
-export function toHexColor(color: string): string {
-  const rgb = parseRgb(String(color))
-  if (!rgb) {
-    throw new Error(`Unsupported color format: ${color}`)
-  }
-
-  return `#${rgb
-    .map((channel) => Math.round(Math.max(0, Math.min(255, channel))).toString(16).padStart(2, '0'))
-    .join('')}`.toUpperCase()
 }
 
 export function getColorHue(color: string): number {
